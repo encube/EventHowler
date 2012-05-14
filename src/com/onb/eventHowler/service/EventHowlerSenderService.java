@@ -104,7 +104,6 @@ public class EventHowlerSenderService extends Service{
 	private void startSeekingForDataToBeSend() {
 		Runnable forSendSeeker = new Runnable() {
 			
-			@Override
 			public void run() {
 				int currentPosition = 0;
 				

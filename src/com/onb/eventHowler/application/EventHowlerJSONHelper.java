@@ -1,0 +1,91 @@
+package com.onb.eventHowler.application;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class EventHowlerJSONHelper {
+
+	
+	/**
+	 * @param filePath	location of the JSON formatted file
+	 * @return			list containing JSONArrays generated from the JSON formatted file
+	 */
+	public static List<JSONArray> extractJSONFile(String filePath){
+		List<JSONArray> jsonList = new ArrayList<JSONArray>();
+		
+		try {
+			Scanner jsonReader = new Scanner(new FileInputStream(new File(filePath)));
+		
+			while(jsonReader.hasNextLine()) {
+				String content = jsonReader.nextLine();
+				jsonList.add( getJSONArray(content) );
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return Collections.unmodifiableList(jsonList);
+	}
+	
+	/**
+	 * @param JSONString	JSON formatted String containing multiple entries
+	 * @return				a JSONArray containing multiple entries extracted from the JSON formatted String
+	 */
+	public static JSONArray getJSONArray(String JSONString) {
+		JSONArray jsonArray = new JSONArray();
+		
+		try {
+			jsonArray = new JSONArray(JSONString);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return jsonArray;
+	}
+	
+	/**
+	 * @param JSONString	JSON formatted String containing a single entry
+	 * @return				a JSONObject containing the details from the JSON formatted string
+	 */
+	public static JSONObject getJSONObject(String JSONString)
+	{
+		JSONObject jsonObject = new JSONObject();
+		
+		try {
+			jsonObject = new JSONObject(JSONString);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return jsonObject;
+	}
+	
+	/**
+	 * @param jsonArray		the JSONArray containing the entries
+	 * @param index			index of the desired JSONObject in the JSONArray
+	 * @return				JSONObject of a single entry from the JSONArray
+	 */
+	public static JSONObject extractJSONArray(JSONArray jsonArray, int index)
+	{
+		JSONObject jsonObject = new JSONObject();
+		
+		try {
+			jsonObject = jsonArray.getJSONObject(index);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return jsonObject;
+	}
+	
+}

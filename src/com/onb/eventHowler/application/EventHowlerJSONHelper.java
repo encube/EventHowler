@@ -3,6 +3,11 @@ package com.onb.eventHowler.application;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +21,34 @@ public class EventHowlerJSONHelper {
 
 	
 	/**
-	 * @param filePath	location of the JSON formatted file
+	 * @param url	URL to the JSON-formatted web page
+	 * @return		list containing JSONArrays generated from the JSON formatted file
+	 */
+	public static List<JSONArray> extractFromURL(String url){
+		List<JSONArray> jsonList = new ArrayList<JSONArray>();
+		try {
+			URL oracle = new URL(url);
+			URLConnection yc = oracle.openConnection();
+			Scanner jsonReader = new Scanner(new InputStreamReader(
+			                            yc.getInputStream()));
+			
+			while(jsonReader.hasNextLine()) {
+				String content = jsonReader.nextLine();
+				jsonList.add( getJSONArray(content) );
+			}
+			jsonReader.close();
+		} catch (MalformedURLException e) {
+			
+			e.printStackTrace();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return Collections.unmodifiableList(jsonList);
+	}
+	
+	/**
+	 * @param filePath	location of the JSON-formatted file
 	 * @return			list containing JSONArrays generated from the JSON formatted file
 	 */
 	public static List<JSONArray> extractJSONFile(String filePath){
@@ -38,7 +70,7 @@ public class EventHowlerJSONHelper {
 	}
 	
 	/**
-	 * @param JSONString	JSON formatted String containing multiple entries
+	 * @param JSONString	JSON-formatted String containing multiple entries
 	 * @return				a JSONArray containing multiple entries extracted from the JSON formatted String
 	 */
 	public static JSONArray getJSONArray(String JSONString) {
@@ -54,7 +86,7 @@ public class EventHowlerJSONHelper {
 	}
 	
 	/**
-	 * @param JSONString	JSON formatted String containing a single entry
+	 * @param JSONString	JSON-formatted String containing a single entry
 	 * @return				a JSONObject containing the details from the JSON formatted string
 	 */
 	public static JSONObject getJSONObject(String JSONString)

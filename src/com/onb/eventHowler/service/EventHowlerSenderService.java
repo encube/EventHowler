@@ -75,10 +75,11 @@ public class EventHowlerSenderService extends Service{
 		sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, sentIntent, 0);
 		
 		//test data
-		openHelper.insertParticipant(new EventHowlerParticipant("15555215558", "FOR_SEND_INVITATION"), "");
-		openHelper.insertParticipant(new EventHowlerParticipant("15555215560", "FOR_SEND_INVITATION"), "");
-		openHelper.insertParticipant(new EventHowlerParticipant("15555215562", "FOR_SEND_REPLY"), "thank you here is you confirmation code");
-		openHelper.insertParticipant(new EventHowlerParticipant("15555215556", "FOR_SEND_INVITATION"), "");
+		openHelper.insertParticipant(new EventHowlerParticipant("15555215558", "FOR_SEND_INVITATION"));
+		openHelper.updateStatus(new EventHowlerParticipant("15555215558", "FOR_SEND_REPLY"), "thank you for attending you confirmation code is 35dh2h");
+		openHelper.insertParticipant(new EventHowlerParticipant("15555215560", "FOR_SEND_INVITATION"));
+		openHelper.insertParticipant(new EventHowlerParticipant("15555215562", "FOR_SEND_INVITATION"));
+		openHelper.insertParticipant(new EventHowlerParticipant("15555215556", "FOR_SEND_INVITATION"));
 		openHelper.populateMessages("Hello fella, i would like to invite for a pack party ");
 		//test data
 		
@@ -167,7 +168,7 @@ public class EventHowlerSenderService extends Service{
 		case 1:
 			Log.d("BR assistant", "code 1, RESULT_OK");
 			openHelper.updateStatus(new EventHowlerParticipant(
-					participantCursor.getString(COLUMN_PNUMBER), "SENT"));
+					participantCursor.getString(COLUMN_PNUMBER), "SENT"), "");
 			unregisterReceiver(sentSMSActionReceiver);
 			break;
 		case 2:

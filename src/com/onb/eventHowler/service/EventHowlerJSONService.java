@@ -38,7 +38,7 @@ public class EventHowlerJSONService extends Service {
 				try {
 					JSONObject jObject = jArray.getJSONObject(i);
 					EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
-					openHelper.insertParticipant(participant, "");
+					openHelper.insertParticipant(participant);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

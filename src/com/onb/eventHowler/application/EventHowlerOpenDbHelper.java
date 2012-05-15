@@ -75,12 +75,12 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		getWritableDatabase().delete(TABLE_MESSAGES, "1", null);
 	}
 	
-	public void insertParticipant(EventHowlerParticipant participant, String replyMessage){
+	public void insertParticipant(EventHowlerParticipant participant){
 		Log.d("openHelper", "inserting participant");
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
-		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, replyMessage);
+		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, "");
 		
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);
 	}
@@ -94,12 +94,12 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		getWritableDatabase().insert(TABLE_MESSAGES, null, invitationMessageValues);
 	}
 	
-	public void updateStatus(EventHowlerParticipant participant){
+	public void updateStatus(EventHowlerParticipant participant, String replyMessage){
 		Log.d("openHelper", "updating status");
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
-		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, "");
+		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, replyMessage);
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
 	}

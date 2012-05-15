@@ -131,11 +131,9 @@ public class EventHowlerJSONHelper {
 	 * @throws JSONException
 	 */
 	public static EventHowlerParticipant convertJSONObjectToParticipant(JSONObject jsonObject) throws JSONException {
-		String firstName = jsonObject.getString(ATTRIBUTE_FIRST_NAME);
-		String lastName = jsonObject.getString(ATTRIBUTE_LAST_NAME);
 		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
 		String status = jsonObject.getString(ATTRIBUTE_STATUS);
-		EventHowlerParticipant participant = new EventHowlerParticipant(firstName, lastName, phoneNumber, status);
+		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, status);
 		
 		return participant;
 	}

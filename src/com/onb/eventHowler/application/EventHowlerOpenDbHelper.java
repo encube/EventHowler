@@ -17,7 +17,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	private static final String TABLE_MESSAGES = "messages";
 	
 	private static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
-	private static final String PARTICIPANT_COLUMN_NAME = "name";
 	private static final String PARTICIPANT_COLUMN_STATUS = "status";
 	
 	private static final String MESSAGE_COLUMN_ID = "message_id";
@@ -32,7 +31,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	public void onCreate(SQLiteDatabase db) {
 		String query = "CREATE TABLE "+ TABLE_PARTICIPANTS
 				+ " (" + PARTICIPANT_COLUMN_PNUMBER + " TEXT, "
-				+ PARTICIPANT_COLUMN_NAME + " TEXT, "
 				+ PARTICIPANT_COLUMN_STATUS + " TEXT)";
 		db.execSQL(query);
 		
@@ -85,7 +83,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	public void insertParticipant(EventHowlerParticipant participant){
 		Log.d("openHelper", "inserting participant");
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(PARTICIPANT_COLUMN_NAME, participant.getFirstName());
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		
@@ -120,7 +117,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		Log.d("openHelper", "updating status");
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
-		contentValues.put(PARTICIPANT_COLUMN_NAME, participant.getFirstName());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
@@ -136,7 +132,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 			return "NONE";
 		}
 		cursor.moveToFirst();
-		String name = cursor.getString(1);
+		String name = cursor.getString(0);
 		cursor.close();
 		return name;
 		

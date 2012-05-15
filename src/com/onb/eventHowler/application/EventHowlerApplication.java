@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class EventHowlerApplication extends Application{
 	
-	private boolean hasOnHoingEvent;
+	private boolean withOngoingEvent;
 	
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private EventHowlerBroadcastReceiver eventHowlerBraoaBroadcastReceiver = new EventHowlerBroadcastReceiver();
@@ -21,20 +21,20 @@ public class EventHowlerApplication extends Application{
 		super.onCreate();
 	}
 		
-	public boolean hasOnGoingEvent(){
-		return hasOnHoingEvent;
+	public boolean hasOngoingEvent(){
+		return withOngoingEvent;
 	}
 	
 	public void startEvent(){
 		Log.d("application", "starting event");
 		registerReceiver(eventHowlerBraoaBroadcastReceiver, SMS_RECEIVED_FILTER);
 		startService(new Intent(this, EventHowlerSenderService.class));
-		hasOnHoingEvent = true;
+		withOngoingEvent = true;
 	}
 	
 	public void stopEvent(){
 		Log.d("application", "stopping event");
 		unregisterReceiver(eventHowlerBraoaBroadcastReceiver);
-		hasOnHoingEvent = false;
+		withOngoingEvent = false;
 	}
 }

@@ -89,7 +89,7 @@ public class EventHowlerSenderService extends Service{
 				Toast.LENGTH_SHORT).show();
 		application = (EventHowlerApplication)getApplication();
 		
-		participantCursor = openHelper.getAllParticipantToBeSend();
+		participantCursor = openHelper.getAllParticipantsWithUnsentInvites();
 		messageCursor = openHelper.getAllMesssages();
 		messageCursor.moveToPosition(INITIAL_POSITION);
 		invitationMessage = messageCursor.getString(COLUMN_MESSAGES);
@@ -115,14 +115,14 @@ public class EventHowlerSenderService extends Service{
 						}
 						catch (Exception e) {Log.d("sender service", "nag-pupuyat, ayaw magsleep");}
 						
-						if(!application.hasOnGoingEvent()){
+						if(!application.hasOngoingEvent()){
 							participantCursor.close();
 							messageCursor.close();
 							openHelper.resetDatabase();
 							break;
 						}
 						participantCursor.close();
-						participantCursor = openHelper.getAllParticipantToBeSend();
+						participantCursor = openHelper.getAllParticipantsWithUnsentInvites();
 						
 					}
 					else{
@@ -150,10 +150,10 @@ public class EventHowlerSenderService extends Service{
 						if(currentPosition+1<participantCursor.getCount()){
 							currentPosition++;
 						}
-						else if(application.hasOnGoingEvent()){
+						else if(application.hasOngoingEvent()){
 							currentPosition=0;
 							participantCursor.close();
-							participantCursor = openHelper.getAllParticipantToBeSend();
+							participantCursor = openHelper.getAllParticipantsWithUnsentInvites();
 						}
 						else{
 							messageCursor.close();
@@ -202,6 +202,22 @@ public class EventHowlerSenderService extends Service{
 		Toast.makeText(this, "event Howler sending service destroyed",
 				Toast.LENGTH_SHORT).show();
 		super.onDestroy();
+	}
+
+	public String getConfirmationCode() {
+		return confirmationCode;
+	}
+
+	public void setConfirmationCode(String confirmationCode) {
+		this.confirmationCode = confirmationCode;
+	}
+
+	public String getNegationCode() {
+		return negationCode;
+	}
+
+	public void setNegationCode(String negationCode) {
+		this.negationCode = negationCode;
 	}
 	
 }

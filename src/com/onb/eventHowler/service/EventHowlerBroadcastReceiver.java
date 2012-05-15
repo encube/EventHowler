@@ -19,7 +19,7 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 		EventHowlerOpenDbHelper openHelper = new EventHowlerOpenDbHelper(context);
 		
 		//test
-		Cursor participant = openHelper.getAllParticipant();
+		Cursor participant = openHelper.getAllParticipants();
 		Log.d("broadcastReceiver", participant.getCount() + " broadcast receiver");
 		participant.close();
 		//test

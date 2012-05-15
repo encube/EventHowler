@@ -58,8 +58,8 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ " = " + phoneNumber, null);
 	}
 	
-	public Cursor getAllParticipant() {
-		Log.d("openHelper", "getAllParticipant");
+	public Cursor getAllParticipants() {
+		Log.d("openHelper", "getAllParticipants");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
 									+ TABLE_PARTICIPANTS, null);
 	}
@@ -70,8 +70,8 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ TABLE_MESSAGES, null);
 	}
 	
-	public Cursor getAllParticipantToBeSend(){
-		Log.d("openHelper", "getAllParticipantToBeSend");
+	public Cursor getAllParticipantsWithUnsentInvites(){
+		Log.d("openHelper", "getAllParticipantsWithUnsentInvites");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
 									+ TABLE_PARTICIPANTS + " WHERE " 
 									+ PARTICIPANT_COLUMN_STATUS 

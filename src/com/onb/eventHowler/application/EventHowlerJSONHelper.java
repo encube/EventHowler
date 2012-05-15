@@ -132,6 +132,7 @@ public class EventHowlerJSONHelper {
 		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
 		String transactionId = jsonObject.getString(ATTRIBUTE_TRANS_ID);
 		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, transactionId, STATUS_FOR_SENDING);
+
 		
 		return participant;
 	}

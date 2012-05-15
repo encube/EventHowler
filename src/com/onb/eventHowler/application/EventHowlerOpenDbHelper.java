@@ -18,6 +18,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	
 	private static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
 	private static final String PARTICIPANT_COLUMN_STATUS = "status";
+	private static final String PARTICIPANT_COLUMN_TRANSACTION_ID = "transactionId";
 	private static final String PARTICIPANT_COLUMN_REPLYMESSAGE = "replyMessage";
 	
 	private static final String MESSAGE_COLUMN_ID = "message_id";
@@ -35,6 +36,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		String query = "CREATE TABLE "+ TABLE_PARTICIPANTS
 				+ " (" + PARTICIPANT_COLUMN_PNUMBER + " TEXT, "
 				+ PARTICIPANT_COLUMN_STATUS + " TEXT, "
+				+ PARTICIPANT_COLUMN_TRANSACTION_ID + " TEXT, "
 				+ PARTICIPANT_COLUMN_REPLYMESSAGE  + " TEXT)";
 		db.execSQL(query);
 		
@@ -80,8 +82,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
-		
-		// TODO
+		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
 		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, "");
 
 		
@@ -102,6 +103,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
+		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
 		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, replyMessage);
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
@@ -119,5 +121,18 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		cursor.close();
 		return true;
 		
+	}
+
+	public String getTransactionIdOfPhoneNumber(String phoneNumber) {
+		String transactionId;
+		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
+				+ TABLE_PARTICIPANTS + " WHERE " 
+				+ PARTICIPANT_COLUMN_PNUMBER 
+				+ " = " + phoneNumber, null);
+		cursor.moveToFirst();
+		transactionId = cursor.getString(0);
+		cursor.close();
+
+		return transactionId;
 	}
 }

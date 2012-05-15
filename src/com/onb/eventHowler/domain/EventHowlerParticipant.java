@@ -5,9 +5,11 @@ public class EventHowlerParticipant {
 	private final String phoneNumber;
 	private String transactionID;
 	private String status;
+	private String transactionId;
 	
-	public EventHowlerParticipant(String phoneNumber, String status) {
+	public EventHowlerParticipant(String phoneNumber, String transactionId, String status) {
 		this.phoneNumber = phoneNumber;
+		this.setTransactionId(transactionId);
 		this.status = status;
 	}
 
@@ -29,6 +31,14 @@ public class EventHowlerParticipant {
 	
 	public void setTransactionID(String transactionID) {
 		this.transactionID = transactionID;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
 	}
 	
 	

@@ -130,7 +130,7 @@ public class EventHowlerJSONHelper {
 	public static EventHowlerParticipant convertJSONObjectToParticipant(JSONObject jsonObject) throws JSONException {
 		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
 		String status = jsonObject.getString(ATTRIBUTE_STATUS);
-		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, status);
+		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, status, "FOR_SEND_INVITATION");
 		
 		return participant;
 	}

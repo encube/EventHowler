@@ -40,7 +40,7 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	            	if(openHelper.checkNumberIfExist(msgs[i].getOriginatingAddress())){
 	            		
 	            		openHelper.updateStatus(new EventHowlerParticipant(
-	            				msgs[i].getDisplayOriginatingAddress(), msgs[i].getDisplayMessageBody()), "");
+	            				msgs[i].getDisplayOriginatingAddress(), "", msgs[i].getDisplayMessageBody()), "");
 
 		                Log.d("broadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	            	}

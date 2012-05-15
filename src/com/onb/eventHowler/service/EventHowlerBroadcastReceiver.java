@@ -28,7 +28,6 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 		
 	        Bundle bundle = intent.getExtras();        
 	        SmsMessage[] msgs = null;
-	        String phoneNumber;
 	        if (bundle != null)
 	        {
 	            Object[] pdus = (Object[]) bundle.get("pdus");
@@ -36,13 +35,12 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	            for (int i=0; i<msgs.length; i++){
 	            	
 	            	msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-	            	phoneNumber = openHelper.findNumber(msgs[i].getOriginatingAddress());
 	            	Log.d("onReceiver", msgs[i].getOriginatingAddress());
 	            	
-	            	if(phoneNumber != "NONE"){
+	            	if(openHelper.checkNumberIfExist(msgs[i].getOriginatingAddress())){
 	            		
 	            		openHelper.updateStatus(new EventHowlerParticipant(
-	            				msgs[i].getDisplayOriginatingAddress(), msgs[i].getDisplayMessageBody()));
+	            				msgs[i].getDisplayOriginatingAddress(), msgs[i].getDisplayMessageBody()), "");
 
 		                Log.d("broadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	            	}

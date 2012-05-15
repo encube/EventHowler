@@ -43,8 +43,8 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	            	if(name != "NONE"){
 	            		
 	            		openHelper.updateStatus(new EventHowlerParticipant(name,
-	            				msgs[i].getDisplayOriginatingAddress(),
-	            				msgs[i].getDisplayMessageBody()));
+	            				null,
+	            				msgs[i].getDisplayOriginatingAddress(), msgs[i].getDisplayMessageBody()));
 	            		
 		                str += "SMS from " + msgs[i].getOriginatingAddress();                     
 		                str += " :";

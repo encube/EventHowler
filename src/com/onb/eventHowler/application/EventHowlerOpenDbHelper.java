@@ -85,7 +85,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	public void insertParticipant(EventHowlerParticipant participant){
 		Log.d("openHelper", "inserting participant");
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(PARTICIPANT_COLUMN_NAME, participant.getName());
+		contentValues.put(PARTICIPANT_COLUMN_NAME, participant.getFirstName());
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		
@@ -120,7 +120,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		Log.d("openHelper", "updating status");
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
-		contentValues.put(PARTICIPANT_COLUMN_NAME, participant.getName());
+		contentValues.put(PARTICIPANT_COLUMN_NAME, participant.getFirstName());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);

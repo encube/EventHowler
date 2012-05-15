@@ -22,8 +22,9 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 public class EventHowlerJSONHelper {
 
 	
-	private static final String ATTRIBUTE_NAME = "name";
-	private static final String ATTRIBUTE_PHONE_NUMBER = "phone_number";
+	private static final String ATTRIBUTE_FIRST_NAME = "firstName";
+	private static final String ATTRIBUTE_LAST_NAME = "lastName";
+	private static final String ATTRIBUTE_PHONE_NUMBER = "phoneNumber";
 	private static final String ATTRIBUTE_STATUS = "status";
 	
 	/**
@@ -129,11 +130,12 @@ public class EventHowlerJSONHelper {
 	 * @return					EventHowlerParticipant object derived from JSONObject
 	 * @throws JSONException
 	 */
-	public static EventHowlerParticipant convertJSONObject(JSONObject jsonObject) throws JSONException {
-		String name = jsonObject.getString(ATTRIBUTE_NAME);
+	public static EventHowlerParticipant convertJSONObjectToParticipant(JSONObject jsonObject) throws JSONException {
+		String firstName = jsonObject.getString(ATTRIBUTE_FIRST_NAME);
+		String lastName = jsonObject.getString(ATTRIBUTE_LAST_NAME);
 		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
 		String status = jsonObject.getString(ATTRIBUTE_STATUS);
-		EventHowlerParticipant participant = new EventHowlerParticipant(name, phoneNumber, status);
+		EventHowlerParticipant participant = new EventHowlerParticipant(firstName, lastName, phoneNumber, status);
 		
 		return participant;
 	}

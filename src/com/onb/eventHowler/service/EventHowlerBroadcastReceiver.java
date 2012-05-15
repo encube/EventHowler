@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.widget.Toast;
+
 
 public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	
@@ -21,7 +21,6 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 		
 	        Bundle bundle = intent.getExtras();        
 	        SmsMessage[] msgs = null;
-	        String str = "";
 	        String name;
 	        if (bundle != null)
 	        {
@@ -38,16 +37,11 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	            		openHelper.updateStatus(new EventHowlerParticipant(name,
 	            				msgs[i].getDisplayOriginatingAddress(),
 	            				msgs[i].getDisplayMessageBody()));
-	            		
-		                str += "SMS from " + msgs[i].getOriginatingAddress();                     
-		                str += " :";
-		                str += msgs[i].getMessageBody().toString();
-		                str += "\n";
+
 		                Log.d("broadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	            	}
 	            }
-
-	            Toast.makeText(context, str, Toast.LENGTH_SHORT).show(); //for test
+	            openHelper.close();
 	        }}
 
 }

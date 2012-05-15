@@ -135,7 +135,8 @@ public class EventHowlerSenderService extends Service{
 						
 						if(participantCursor.getString(COLUMN_STATUS).equals("FOR_SEND")){
 							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
-									"To:" + participantCursor.getString(COLUMN_NAME) + invitationMessage);
+									"To: " + participantCursor.getString(COLUMN_NAME) + "\n" + invitationMessage
+									+ "\n" + confirmationCode + " to accept and " + negationCode + " to decline");
 							
 							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
 						}
@@ -148,7 +149,7 @@ public class EventHowlerSenderService extends Service{
 						}
 						else{
 							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
-									"please reply " + confirmationCode + " or " + negationCode);
+									"Please reply " + confirmationCode + " or " + negationCode);
 							
 							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
 						}
@@ -212,6 +213,7 @@ public class EventHowlerSenderService extends Service{
 	public void onDestroy() {
 		Toast.makeText(this, "event Howler sending service destroyed",
 				Toast.LENGTH_SHORT).show();
+		openHelper.close();
 		super.onDestroy();
 	}
 	

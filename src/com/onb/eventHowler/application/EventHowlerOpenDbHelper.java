@@ -84,6 +84,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
 		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, "");
+
 		
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);
 	}

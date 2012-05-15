@@ -100,12 +100,12 @@ public class EventHowlerSenderService extends Service{
 		messageCursor.moveToNext();
 		negationCode = messageCursor.getString(COLUMN_MESSAGES);
 		
-		startSeekingForDataToBeSend();
+		startSeekingForDataToBeSent();
 		
 		return Service.START_NOT_STICKY;
 	}
 
-	private void startSeekingForDataToBeSend() {
+	private void startSeekingForDataToBeSent() {
 		Runnable forSendSeeker = new Runnable() {
 			
 			public void run() {

@@ -17,14 +17,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.onb.eventHowler.domain.EventHowlerParticipant;
+
 public class EventHowlerJSONHelper {
 
+	
+	private static final String ATTRIBUTE_NAME = "name";
+	private static final String ATTRIBUTE_PHONE_NUMBER = "phone_number";
+	private static final String ATTRIBUTE_STATUS = "status";
 	
 	/**
 	 * @param url	URL to the JSON-formatted web page
 	 * @return		list containing JSONArrays generated from the JSON formatted file
 	 */
-	public static List<JSONArray> extractFromURL(String url){
+	public static List<JSONArray> extractFromURL(String url) {
 		List<JSONArray> jsonList = new ArrayList<JSONArray>();
 		try {
 			URL oracle = new URL(url);
@@ -51,7 +57,7 @@ public class EventHowlerJSONHelper {
 	 * @param filePath	location of the JSON-formatted file
 	 * @return			list containing JSONArrays generated from the JSON formatted file
 	 */
-	public static List<JSONArray> extractJSONFile(String filePath){
+	public static List<JSONArray> extractJSONFile(String filePath) {
 		List<JSONArray> jsonList = new ArrayList<JSONArray>();
 		
 		try {
@@ -89,8 +95,7 @@ public class EventHowlerJSONHelper {
 	 * @param JSONString	JSON-formatted String containing a single entry
 	 * @return				a JSONObject containing the details from the JSON formatted string
 	 */
-	public static JSONObject getJSONObject(String JSONString)
-	{
+	public static JSONObject getJSONObject(String JSONString)	{
 		JSONObject jsonObject = new JSONObject();
 		
 		try {
@@ -107,8 +112,7 @@ public class EventHowlerJSONHelper {
 	 * @param index			index of the desired JSONObject in the JSONArray
 	 * @return				JSONObject of a single entry from the JSONArray
 	 */
-	public static JSONObject extractJSONArray(JSONArray jsonArray, int index)
-	{
+	public static JSONObject extractJSONArray(JSONArray jsonArray, int index)	{
 		JSONObject jsonObject = new JSONObject();
 		
 		try {
@@ -118,6 +122,20 @@ public class EventHowlerJSONHelper {
 		}
 		
 		return jsonObject;
+	}
+	
+	/**
+	 * @param jsonObject		the JSONObject to be converted
+	 * @return					EventHowlerParticipant object derived from JSONObject
+	 * @throws JSONException
+	 */
+	public static EventHowlerParticipant convertJSONObject(JSONObject jsonObject) throws JSONException {
+		String name = jsonObject.getString(ATTRIBUTE_NAME);
+		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
+		String status = jsonObject.getString(ATTRIBUTE_STATUS);
+		EventHowlerParticipant participant = new EventHowlerParticipant(name, phoneNumber, status);
+		
+		return participant;
 	}
 	
 }

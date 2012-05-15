@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
 	private static final String DATABASE = "event_howler.db";
 	private static final String TABLE_PARTICIPANTS = "participants";
 	private static final String TABLE_MESSAGES = "messages";
@@ -44,9 +44,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PARTICIPANTS);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
-		onCreate(db);
+
 	}
 
 	
@@ -126,5 +124,21 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
+	}
+
+	public String findNumber(String phoneNumber) {
+		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
+				+ TABLE_PARTICIPANTS + " WHERE " 
+				+ PARTICIPANT_COLUMN_PNUMBER 
+				+ " = " + phoneNumber, null);
+		if(cursor.getCount() == 0){
+			cursor.close();
+			return "NONE";
+		}
+		cursor.moveToFirst();
+		String name = cursor.getString(1);
+		cursor.close();
+		return name;
+		
 	}
 }

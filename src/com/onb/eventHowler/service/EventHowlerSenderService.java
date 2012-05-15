@@ -77,12 +77,12 @@ public class EventHowlerSenderService extends Service{
 		sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, sentIntent, 0);
 		
 		//test data
-		openHelper.insertParticipant(new EventHowlerParticipant("dexie", "5558", "FOR_SEND"));
-		openHelper.insertParticipant(new EventHowlerParticipant("novo", "5560", "FOR_SEND"));
-		openHelper.insertParticipant(new EventHowlerParticipant("nino", "5562", "FOR_SEND"));
-		openHelper.insertParticipant(new EventHowlerParticipant("naga", "5556", "FOR_SEND"));
+		openHelper.insertParticipant(new EventHowlerParticipant("dexie", "15555215558", "FOR_SEND"));
+		openHelper.insertParticipant(new EventHowlerParticipant("novo", "15555215560", "FOR_SEND"));
+		openHelper.insertParticipant(new EventHowlerParticipant("nino", "15555215562", "FOR_SEND"));
+		openHelper.insertParticipant(new EventHowlerParticipant("naga", "15555215556", "FOR_SEND"));
 		openHelper.populateMessages("Hello fella, i would like to invite for a pack party ", 
-				"thank you, we receive your reply ", "yes", "no");
+				"thank you, we receive your reply ", "Yes", "No");
 		//test data
 		
 		Toast.makeText(this, "event Howler Sender service started",
@@ -95,6 +95,10 @@ public class EventHowlerSenderService extends Service{
 		invitationMessage = messageCursor.getString(COLUMN_MESSAGES);
 		messageCursor.moveToNext();
 		replyMessage = messageCursor.getString(COLUMN_MESSAGES);
+		messageCursor.moveToNext();
+		confirmationCode = messageCursor.getString(COLUMN_MESSAGES);
+		messageCursor.moveToNext();
+		negationCode = messageCursor.getString(COLUMN_MESSAGES);
 		
 		startSeekingForDataToBeSend();
 		
@@ -131,13 +135,20 @@ public class EventHowlerSenderService extends Service{
 						
 						if(participantCursor.getString(COLUMN_STATUS).equals("FOR_SEND")){
 							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
-									invitationMessage + participantCursor.getString(COLUMN_NAME));
+									"To:" + participantCursor.getString(COLUMN_NAME) + invitationMessage);
+							
+							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
+						}
+						else if(participantCursor.getString(COLUMN_STATUS).equals(confirmationCode)
+								|| participantCursor.getString(COLUMN_STATUS).equals(negationCode)){
+							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
+									replyMessage);
 							
 							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
 						}
 						else{
 							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
-									replyMessage + participantCursor.getString(COLUMN_STATUS));
+									"please reply " + confirmationCode + " or " + negationCode);
 							
 							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
 						}

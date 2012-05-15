@@ -104,19 +104,17 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
 	}
 
-	public String findNumber(String phoneNumber) {
+	public boolean checkNumberIfExist(String phoneNumber) {
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
 				+ TABLE_PARTICIPANTS + " WHERE " 
 				+ PARTICIPANT_COLUMN_PNUMBER 
 				+ " = " + phoneNumber, null);
 		if(cursor.getCount() == 0){
 			cursor.close();
-			return "NONE";
+			return false;
 		}
-		cursor.moveToFirst();
-		String name = cursor.getString(0);
 		cursor.close();
-		return name;
+		return true;
 		
 	}
 }

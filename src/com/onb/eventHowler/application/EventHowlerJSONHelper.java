@@ -21,9 +21,6 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 public class EventHowlerJSONHelper {
 
-	
-	private static final String ATTRIBUTE_FIRST_NAME = "firstName";
-	private static final String ATTRIBUTE_LAST_NAME = "lastName";
 	private static final String ATTRIBUTE_PHONE_NUMBER = "phoneNumber";
 	private static final String ATTRIBUTE_STATUS = "status";
 	

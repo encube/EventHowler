@@ -29,7 +29,14 @@ public class EventHowlerJSONService extends Service {
 		return null;
 	}
 
-	public void retrieveAndStoreFromURL(String url)
+	/**
+	 * Retrieves a JSON formatted String from a specified String url.
+	 * Stores the participant data from the JSON formatted String into
+	 * the local database.
+	 * 
+	 * @param url location of webpage to retrieve and store data from
+	 */
+	public void retrieveAndStoreParticipantListFromURL(String url)
 	{
 		List<JSONArray> list = EventHowlerJSONHelper.extractFromURL(url);
 		
@@ -37,14 +44,25 @@ public class EventHowlerJSONService extends Service {
 			for(int i = 0; i < jArray.length(); i++){
 				try {
 					JSONObject jObject = jArray.getJSONObject(i);
-					EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
-					openHelper.insertParticipant(participant, "");
+					createAndStoreParticipant(jObject, "");
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
 			}
 		}
+	}
+	
+	/**
+	 * Creates an EventHowlerParticipant object from a JSONObject and
+	 * stores it as a row in the database.
+	 * @param jObject
+	 * @param message
+	 * @throws JSONException
+	 */
+	public void createAndStoreParticipant(JSONObject jObject, String message) throws JSONException
+	{
+		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
+		openHelper.insertParticipant(participant, message);		
 	}
 }

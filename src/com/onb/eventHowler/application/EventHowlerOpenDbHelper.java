@@ -82,6 +82,8 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
+		
+		// TODO replyMessage(?)
 		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, replyMessage);
 		
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);

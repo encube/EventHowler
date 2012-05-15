@@ -46,9 +46,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
-		getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + TABLE_PARTICIPANTS);
-		onCreate(db);
+		
 	}
 	
 	public Cursor getAllParticipants() {

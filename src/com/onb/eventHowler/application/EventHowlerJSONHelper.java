@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,8 +19,8 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 public class EventHowlerJSONHelper {
 
 	public static final String ATTRIBUTE_CONTENT = "contacts";
-	public static final String ATTRIBUTE_PHONE_NUMBER = "phoneNumber";
-	public static final String ATTRIBUTE_TRANS_ID = "transactionId";
+	public static final int ATTRIBUTE_PHONE_NUMBER = 0;//"phoneNumber";
+	public static final int ATTRIBUTE_TRANS_ID = 1;//"transactionId";
 	public static final String ATTRIBUTE_MESSAGE = "invitationMessage";
 	private static final String STATUS_FOR_SENDING = "FOR_SEND_INVITATION";
 	
@@ -67,13 +68,13 @@ public class EventHowlerJSONHelper {
 	}
 	
 	/**
-	 * @param jsonObject		the JSONObject to be converted
+	 * @param jArray		the JSONObject to be converted
 	 * @return					EventHowlerParticipant object derived from JSONObject
 	 * @throws JSONException
 	 */
-	public static EventHowlerParticipant convertJSONObjectToParticipant(JSONObject jsonObject) throws JSONException {
-		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
-		String transactionId = jsonObject.getString(ATTRIBUTE_TRANS_ID);
+	public static EventHowlerParticipant convertJSONArrayToParticipant(JSONArray jArray) throws JSONException {
+		String phoneNumber = jArray.getString(ATTRIBUTE_PHONE_NUMBER);
+		String transactionId = jArray.getString(ATTRIBUTE_TRANS_ID);
 		
 		return new EventHowlerParticipant(phoneNumber, transactionId, STATUS_FOR_SENDING);
 	}

@@ -37,7 +37,7 @@ public class EventHowlerStatusInformerService extends android.app.Service {
 	
 	public void startSendingReply() {
 		Runnable startSendingReplyRunnable = new Runnable() {
-			@Override
+			
 			public void run() {
 				while (true) {
 					threadSleep(500);

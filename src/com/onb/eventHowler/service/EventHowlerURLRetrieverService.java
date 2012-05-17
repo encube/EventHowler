@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerJSONHelper;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
@@ -14,6 +15,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class EventHowlerURLRetrieverService extends Service{
 
@@ -22,15 +24,62 @@ public class EventHowlerURLRetrieverService extends Service{
 	private static final String WEB_DOMAIN = "10.10.6.83";
 	private static final String PORT_NO = "8080";
 	
+	
 	@Override
 	public void onCreate() {
-		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
+		
 	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		
+		Log.d("onStartCommand", "starting URL Retriever");
+		
+		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
+		EventHowlerApplication app = (EventHowlerApplication)(getApplication());
+		
+		String id = app.getEventId();
+		String secretKey = app.getSecretKey();
+
+		startQuerying(id,secretKey);
+		
+		return Service.START_NOT_STICKY;
+	}
+	
+	public void startQuerying(final String id, final String secretKey)
+	{		
+		Thread queryThread = new Thread( new Runnable() {
+			public void run(){				
+				boolean serviceStarted = false;
+				
+				while(true){
+					
+					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
+					threadSleep();
+					
+					if(!openHelper.participantIsEmpty() && !serviceStarted) {
+						startService(new Intent(getApplicationContext(), EventHowlerSenderService.class));
+						serviceStarted = true;
+					}
+					
+				}
+			}
+		});
+		
+		queryThread.start();
+	}
+	
+	private void threadSleep() {
+		try {
+			Thread.sleep(20000);
+		}
+		catch (Exception e) {Log.d("startQuerying", "UNABLE TO SLEEP");}
 	}
 	
 	/**
@@ -69,8 +118,9 @@ public class EventHowlerURLRetrieverService extends Service{
 		List<JSONObject> list = EventHowlerJSONHelper.extractFromURL(url);
 		
 		for(JSONObject entry: list) {
+
+			extractParticipants(entry);
 			try {
-				extractParticipants(entry);
 				extractMessage(entry);
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -92,7 +142,7 @@ public class EventHowlerURLRetrieverService extends Service{
 			
 			for(int i = 0; i < participants.length(); i++) {
 				try {
-					JSONArray participant = participants.getJSONArray(i);
+					JSONObject participant = participants.getJSONObject(i);
 					storeAsParticipant(participant);
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -113,25 +163,43 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @throws JSONException
 	 */
 	public void extractMessage(JSONObject entry) throws JSONException {
+		System.out.print("<MESSGE>");
 		String message = entry.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
+		Log.d("extractMessage", message);
+		System.out.print(message);
+		System.out.println("</MESSGE>");
+		//openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
 		openHelper.populateMessages(message);
+		//openHelper.checkNumberIfExist("+6345678");
 	}
 	
 	/**
 	 * Creates an EventHowlerParticipant from a JSONObject and
 	 * stores it in the database.
 	 * 
-	 * @param jArray		JSONObject to be stored as an EventHowlerParticipant
+	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException
 	 */
-	public void storeAsParticipant(JSONArray jArray) throws JSONException
+	public void storeAsParticipant(JSONObject jObject) throws JSONException
 	{
-		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONArrayToParticipant(jArray);
+		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
+
+		Log.d("STORING PARTICIPANT", "Phone: " + participant.getPhoneNumber() 
+				+ "Trans_id: " + participant.getTransactionId());
+		
 		if(openHelper.checkNumberIfExist(participant.getPhoneNumber())) {
 			openHelper.updateStatus(participant, "");
 		}
 		else {
 			openHelper.insertParticipant(participant);	
 		}
+	}
+	
+	@Override
+	public void onDestroy() {
+		Toast.makeText(this, "event Howler sending service destroyed",
+				Toast.LENGTH_SHORT).show();
+		openHelper.close();
+		super.onDestroy();
 	}
 }

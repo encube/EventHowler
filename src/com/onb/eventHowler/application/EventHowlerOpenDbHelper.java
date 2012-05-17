@@ -57,6 +57,13 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ TABLE_PARTICIPANTS, null);
 	}
 	
+	public boolean participantIsEmpty(){
+		Cursor cursor = getAllParticipants();
+		boolean result =(cursor.getCount() == 0);
+		cursor.close();
+		return result;
+	}
+	
 	public Cursor getAllMesssages(){
 		Log.d("getAllMesssages", "getAllMesssages");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 

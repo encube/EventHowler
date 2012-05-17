@@ -16,6 +16,8 @@ public class EventHowlerApplication extends Application{
 	private EventHowlerBroadcastReceiver eventHowlerBraoaBroadcastReceiver = new EventHowlerBroadcastReceiver();
 	private IntentFilter SMS_RECEIVED_FILTER = new IntentFilter(SMS_RECEIVED);
 	
+	private String eventId = "1", secretKey = "q";
+	
 
 	@Override
 	public void onCreate() {
@@ -30,7 +32,7 @@ public class EventHowlerApplication extends Application{
 		Log.d("startEvent", "starting event");
 		withOngoingEvent = true;
 		registerReceiver(eventHowlerBraoaBroadcastReceiver, SMS_RECEIVED_FILTER);
-		startService(new Intent(this, EventHowlerSenderService.class));
+		startService(new Intent(this, EventHowlerURLRetrieverService.class));
 	}
 	
 	public void stopEvent(){
@@ -46,5 +48,21 @@ public class EventHowlerApplication extends Application{
 
 	public void setRunning(boolean finishing) {
 		this.runningLastCycle = finishing;
+	}
+
+	public String getEventId() {
+		return eventId;
+	}
+
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 }

@@ -22,7 +22,8 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 public class EventHowlerJSONHelper {
 
 	private static final String ATTRIBUTE_PHONE_NUMBER = "phoneNumber";
-	private static final String ATTRIBUTE_STATUS = "status";
+	private static final String ATTRIBUTE_TRANS_ID = "transactionId";
+	private static final String STATUS_FOR_SENDING = "FOR_SEND_INVITATION";
 	
 	/**
 	 * @param url	URL to the JSON-formatted web page
@@ -129,8 +130,9 @@ public class EventHowlerJSONHelper {
 	 */
 	public static EventHowlerParticipant convertJSONObjectToParticipant(JSONObject jsonObject) throws JSONException {
 		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
-		String status = jsonObject.getString(ATTRIBUTE_STATUS);
-		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, status, "FOR_SEND_INVITATION");
+		String transactionId = jsonObject.getString(ATTRIBUTE_TRANS_ID);
+		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, transactionId, STATUS_FOR_SENDING);
+
 		
 		return participant;
 	}

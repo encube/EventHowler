@@ -14,9 +14,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-public class EventHowlerJSONService extends Service {
+public class EventHowlerURLRetrieverService extends Service{
 
 	private static EventHowlerOpenDbHelper openHelper;
+	private static final String QUERY_URL_FORMAT = "EventHowlerApp/query?id=%ssecretKey=%s";
 	
 	@Override
 	public void onCreate() {
@@ -27,6 +28,29 @@ public class EventHowlerJSONService extends Service {
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	/**
+	 * Retrieves participant data from the web application 
+	 * using the corresponding event ID and secret key
+	 * 
+	 * @param id			unique event id
+	 * @param secretKey		corresponding event key
+	 */
+	public void retrieveAndStoreParticipantsFromIdAndKey(String id, String secretKey){
+		String query = generateQueryURL(id, secretKey);
+		retrieveAndStoreParticipantListFromURL(query);
+	}
+	
+	/**
+	 * Generates a URL for querying from the web application
+	 * 
+	 * @param id			unique event id
+	 * @param secretKey		corresponding event key
+	 * @return				generated query URL
+	 */
+	public String generateQueryURL(String id, String secretKey) {
+		return String.format(QUERY_URL_FORMAT, id, secretKey);
 	}
 
 	/**
@@ -56,13 +80,18 @@ public class EventHowlerJSONService extends Service {
 	/**
 	 * Creates an EventHowlerParticipant object from a JSONObject and
 	 * stores it as a row in the database.
-	 * @param jObject
-	 * @param message
+	 * 
+	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException
 	 */
 	public void storeAsParticipant(JSONObject jObject) throws JSONException
 	{
 		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
-		openHelper.insertParticipant(participant);	
+		if(openHelper.checkNumberIfExist(participant.getPhoneNumber())) {
+			openHelper.updateStatus(participant, "");
+		}
+		else {
+			openHelper.insertParticipant(participant);	
+		}
 	}
 }

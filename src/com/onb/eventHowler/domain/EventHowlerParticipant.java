@@ -3,6 +3,7 @@ package com.onb.eventHowler.domain;
 public class EventHowlerParticipant {
 
 	private final String phoneNumber;
+	private String transactionID;
 	private String status;
 	private String transactionId;
 	
@@ -16,12 +17,20 @@ public class EventHowlerParticipant {
 		return status;
 	}
 
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public String getTransactionID() {
+		return transactionID;
+	}
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
-	public String getPhoneNumber() {
-		return phoneNumber;
+	
+	public void setTransactionID(String transactionID) {
+		this.transactionID = transactionID;
 	}
 
 	public String getTransactionId() {

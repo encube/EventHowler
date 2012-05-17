@@ -73,14 +73,19 @@ public class EventHowlerSenderService extends Service{
 		};
 		sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, sentIntent, 0);
 		
-		//test data
+		EventHowlerURLRetrieverService retriever = new EventHowlerURLRetrieverService();
+		String id = "2";
+		String secretKey = "q";
+		retriever.retrieveAndStoreParticipantsFromIdAndKey(id, secretKey);
+		
+		/*/test data
 		openHelper.insertParticipant(new EventHowlerParticipant("15555215556", "2134", "FOR_SEND_INVITATION"));
 		openHelper.insertParticipant(new EventHowlerParticipant("15555215558", "3314", "FOR_SEND_INVITATION"));
 		openHelper.updateStatus(new EventHowlerParticipant("15555215558", "6839", "FOR_SEND_REPLY"), "thank you for attending you confirmation code is 35dh2h");
 		openHelper.insertParticipant(new EventHowlerParticipant("15555215560", "9863", "FOR_SEND_INVITATION"));
-		openHelper.insertParticipant(new EventHowlerParticipant("15555215562", "5324", "FOR_SEND_INVITATION"));
+		openHelper.insertParticipant(new EventHowlerParticipant("15555215562", "5324", "FOR_SEND_INVITATION"));*/
 		openHelper.populateMessages("Hello fella, i would like to invite for a pack party ");
-		//test data
+		//test data 
 		
 		Toast.makeText(this, "event Howler Sender service started",
 				Toast.LENGTH_SHORT).show();

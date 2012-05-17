@@ -13,11 +13,14 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 public class EventHowlerURLRetrieverService extends Service{
 
 	private static EventHowlerOpenDbHelper openHelper;
-	private static final String QUERY_URL_FORMAT = "EventHowlerApp/query?id=%ssecretKey=%s";
+	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?id=%s&secretKey=%s";
+	private static final String WEB_DOMAIN = "10.10.6.80";
+	private static final String PORT_NO = "8080";
 	
 	@Override
 	public void onCreate() {
@@ -50,7 +53,8 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @return				generated query URL
 	 */
 	public String generateQueryURL(String id, String secretKey) {
-		return String.format(QUERY_URL_FORMAT, id, secretKey);
+		Log.d("generateQueryURL", String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, secretKey));
+		return String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, secretKey);
 	}
 
 	/**

@@ -119,7 +119,6 @@ public class EventHowlerJSONHelper {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
 		return jsonObject;
 	}
 	

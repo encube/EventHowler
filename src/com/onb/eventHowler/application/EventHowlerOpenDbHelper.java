@@ -19,7 +19,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	private static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
 	private static final String PARTICIPANT_COLUMN_STATUS = "status";
 	private static final String PARTICIPANT_COLUMN_TRANSACTION_ID = "transactionId";
-	private static final String PARTICIPANT_COLUMN_REPLYMESSAGE = "replyMessage";
+	private static final String PARTICIPANT_COLUMN_MESSAGE = "Message";
 	
 	private static final String MESSAGE_COLUMN_ID = "message_id";
 	private static final String MESSAGE_COLUMN_MESSAGE = "message";
@@ -37,7 +37,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 				+ " (" + PARTICIPANT_COLUMN_PNUMBER + " TEXT, "
 				+ PARTICIPANT_COLUMN_STATUS + " TEXT, "
 				+ PARTICIPANT_COLUMN_TRANSACTION_ID + " TEXT, "
-				+ PARTICIPANT_COLUMN_REPLYMESSAGE  + " TEXT)";
+				+ PARTICIPANT_COLUMN_MESSAGE  + " TEXT)";
 		db.execSQL(query);
 		
 		query = "CREATE TABLE "+ TABLE_MESSAGES
@@ -75,7 +75,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		Log.d("openHelper", "getAllReplyStatus");
 		return getReadableDatabase().rawQuery("SELECT * FROM "
 									+ TABLE_PARTICIPANTS + " WHERE "
-									+ PARTICIPANT_COLUMN_REPLYMESSAGE + " AND "
+									+ PARTICIPANT_COLUMN_MESSAGE + " AND "
 									+ PARTICIPANT_COLUMN_STATUS
 									+ " LIKE 'FOR_SEND_%'", null);
 	}
@@ -92,7 +92,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
-		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, "");
+		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, "");
 
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);
 	}
@@ -112,7 +112,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
-		contentValues.put(PARTICIPANT_COLUMN_REPLYMESSAGE, replyMessage);
+		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, replyMessage);
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
 	}

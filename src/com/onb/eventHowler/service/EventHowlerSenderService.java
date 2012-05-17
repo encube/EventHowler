@@ -21,10 +21,10 @@ public class EventHowlerSenderService extends Service{
 	private static EventHowlerApplication application;
 	private static EventHowlerOpenDbHelper openHelper;
 	
-	private static final int COLUMN_PNUMBER  = 0, 
-			COLUMN_STATUS  = 1,
-			COLUMN_TRANSACTION_ID =2,
-			COLUMN_REPLY  = 3,
+	private static final int PARTICIPANT_COLUMN_PNUMBER  = 0, 
+			PARTICIPANT_COLUMN_STATUS  = 1,
+			PARTICIPANT_COLUMN_TRANSACTION_ID =2,
+			PARTICIPANT_COLUMN_MESSAGE  = 3,
 			COLUMN_MESSAGES = 1,
 			INITIAL_POSITION = 0;
 	
@@ -64,7 +64,6 @@ public class EventHowlerSenderService extends Service{
 				transactionId = intent.getAction().toString().substring(16);
 				switch (getResultCode()){
 				case Activity.RESULT_OK:
-					Log.d("transactionId", transactionId);
 					sentSMSBroadcastReceiverAssistant(1, transactionId);
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
@@ -87,7 +86,6 @@ public class EventHowlerSenderService extends Service{
 				transactionId = intent.getAction().toString().substring(21);
 				switch (getResultCode()) {
 				case Activity.RESULT_OK:
-					Log.d("transactionId", transactionId);
 					Log.d("delevery intent", "delivery intent received, successful");
 					deliveredSMSBroadcastReceiver(1, transactionId);
 					break;
@@ -126,9 +124,8 @@ public class EventHowlerSenderService extends Service{
 		Runnable forSendSeeker = new Runnable() {
 			
 			public void run() {
-				int currentPosition = 0;
 				
-				
+				participantCursor.moveToFirst();
 				while(true){
 					if(participantCursor.getCount() == 0){
 						Log.d("startSeekingForDataToBeSent", "loop running if part");
@@ -147,34 +144,33 @@ public class EventHowlerSenderService extends Service{
 					else{
 						Log.d("startSeekingForDataToBeSent", "loop running else part");
 						threadSleep();
-						participantCursor.moveToPosition(currentPosition);
 						
 						registerReceiver(deliveredSMSActionReceiver, 
-								new IntentFilter(DELIVERED_SMS_ACTION + "_" + participantCursor.getString(COLUMN_TRANSACTION_ID)));
+								new IntentFilter(DELIVERED_SMS_ACTION + "_" + participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
 						registerReceiver(sentSMSActionReceiver, 
-								new IntentFilter(SENT_SMS_ACTION + "_" + participantCursor.getString(COLUMN_TRANSACTION_ID)));
+								new IntentFilter(SENT_SMS_ACTION + "_" + participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
 						
-						if(participantCursor.getString(COLUMN_STATUS).equals("FOR_SEND_INVITATION")){
+						if(participantCursor.getString(PARTICIPANT_COLUMN_STATUS).equals("FOR_SEND_INVITATION")){
 							
-							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
-									invitationMessage, participantCursor.getString(COLUMN_TRANSACTION_ID));
-							Log.d("startSeekingForDataToBeSent", "sending invitation to " + participantCursor.getString(COLUMN_PNUMBER));
+							sendSMS(participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER),
+									invitationMessage, participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID));
+							Log.d("startSeekingForDataToBeSent", "sending invitation to " + participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER));
 							
 						}
-						else if(participantCursor.getString(COLUMN_STATUS).equals("FOR_SEND_REPLY")){
+						else if(participantCursor.getString(PARTICIPANT_COLUMN_STATUS).equals("FOR_SEND_REPLY")){
 							
-							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
-									participantCursor.getString(COLUMN_REPLY), participantCursor.getString(COLUMN_TRANSACTION_ID));
-							Log.d("startSeekingForDataToBeSent", "sending reply to " + participantCursor.getString(COLUMN_PNUMBER));
+							sendSMS(participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER),
+									participantCursor.getString(PARTICIPANT_COLUMN_MESSAGE), participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID));
+							Log.d("startSeekingForDataToBeSent", "sending reply to " + participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER));
 						}
 						
-						if(currentPosition+1<participantCursor.getCount()){
-							currentPosition++;
+						if(!participantCursor.isLast()){
+							participantCursor.moveToNext();
 						}
-						else if(application.hasOngoingEvent()){
-							currentPosition=0;
+						else if(application.hasOngoingEvent() && participantCursor.isLast()){
 							participantCursor.close();
 							participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
+							participantCursor.moveToFirst();
 						}
 						else{
 							participantCursor.close();

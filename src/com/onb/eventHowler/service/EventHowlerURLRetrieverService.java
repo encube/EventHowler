@@ -92,7 +92,7 @@ public class EventHowlerURLRetrieverService extends Service{
 			
 			for(int i = 0; i < participants.length(); i++) {
 				try {
-					JSONObject participant = participants.getJSONObject(i);
+					JSONArray participant = participants.getJSONArray(i);
 					storeAsParticipant(participant);
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -121,12 +121,12 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * Creates an EventHowlerParticipant from a JSONObject and
 	 * stores it in the database.
 	 * 
-	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
+	 * @param jArray		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException
 	 */
-	public void storeAsParticipant(JSONObject jObject) throws JSONException
+	public void storeAsParticipant(JSONArray jArray) throws JSONException
 	{
-		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
+		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONArrayToParticipant(jArray);
 		if(openHelper.checkNumberIfExist(participant.getPhoneNumber())) {
 			openHelper.updateStatus(participant, "");
 		}

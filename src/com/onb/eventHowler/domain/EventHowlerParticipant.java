@@ -31,6 +31,4 @@ public class EventHowlerParticipant {
 	public void setTransactionId(String transactionId) {
 		this.transactionId = transactionId;
 	}
-	
-	
 }

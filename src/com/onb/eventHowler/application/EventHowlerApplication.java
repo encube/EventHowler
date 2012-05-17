@@ -9,8 +9,9 @@ import android.util.Log;
 
 public class EventHowlerApplication extends Application{
 	
-	private boolean withOngoingEvent;
-	
+	private static boolean withOngoingEvent;
+	private boolean runningLastCycle;
+
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private EventHowlerBroadcastReceiver eventHowlerBraoaBroadcastReceiver = new EventHowlerBroadcastReceiver();
 	private IntentFilter SMS_RECEIVED_FILTER = new IntentFilter(SMS_RECEIVED);
@@ -26,15 +27,24 @@ public class EventHowlerApplication extends Application{
 	}
 	
 	public void startEvent(){
-		Log.d("application", "starting event");
+		Log.d("startEvent", "starting event");
+		withOngoingEvent = true;
 		registerReceiver(eventHowlerBraoaBroadcastReceiver, SMS_RECEIVED_FILTER);
 		startService(new Intent(this, EventHowlerSenderService.class));
-		withOngoingEvent = true;
 	}
 	
 	public void stopEvent(){
-		Log.d("application", "stopping event");
-		unregisterReceiver(eventHowlerBraoaBroadcastReceiver);
+		Log.d("stopEvent", "stopping event");
+		runningLastCycle = true;
 		withOngoingEvent = false;
+		unregisterReceiver(eventHowlerBraoaBroadcastReceiver);
+	}
+	
+	public boolean isRunning() {
+		return runningLastCycle;
+	}
+
+	public void setRunning(boolean finishing) {
+		this.runningLastCycle = finishing;
 	}
 }

@@ -71,6 +71,15 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ " LIKE 'FOR_SEND_%'", null);
 	} 
 	
+	public Cursor getAllReplyStatus() {
+		Log.d("openHelper", "getAllReplyStatus");
+		return getReadableDatabase().rawQuery("SELECT * FROM "
+									+ TABLE_PARTICIPANTS + " WHERE "
+									+ PARTICIPANT_COLUMN_REPLYMESSAGE + " AND "
+									+ PARTICIPANT_COLUMN_STATUS
+									+ " LIKE 'FOR_SEND_%'", null);
+	}
+	
 	public void resetDatabase() {
 		Log.d("resetDatabase", "resetting database");
 		getWritableDatabase().delete(TABLE_PARTICIPANTS, "1", null);
@@ -141,4 +150,5 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 
 		return phoneNumber;
 	}
+
 }

@@ -106,15 +106,15 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		getWritableDatabase().insert(TABLE_MESSAGES, null, invitationMessageValues);
 	}
 	
-	public void updateStatus(EventHowlerParticipant participant, String replyMessage){
+	public void updateStatus(EventHowlerParticipant participant, String message){
 		Log.d("updateStatus", "updating status");
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
-		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, replyMessage);
+		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, message);
 		
-		Log.d("UPDATE", participant.getPhoneNumber() + participant.getStatus() + participant.getTransactionId() + replyMessage);
+		Log.d("UPDATE", participant.getPhoneNumber() + participant.getStatus() + participant.getTransactionId() + message);
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
 	}

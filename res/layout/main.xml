@@ -2,26 +2,38 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="#D6C299">
+    
     
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
+        android:gravity="center|right"
         android:orientation="vertical">
-	    
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="142dp"
+            android:layout_height="142dp"
+            android:src="@drawable/wolf"
+            android:gravity="right"
+            android:contentDescription="@string/app_name"/>
+        
 	    <EditText 
 	        android:hint="@string/event_id"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:id="@+id/event_id_edit_text"/>
+	        android:id="@+id/event_id_edit_text"
+	        android:textColor="#AC976A"/>
 	    
 	    <EditText 
 	        android:hint="@string/secret_key"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:id="@+id/secret_key_edit_text"/>
+	        android:id="@+id/secret_key_edit_text"
+	        android:textColor="#AC976A"/>
     </LinearLayout>
     
     <ToggleButton
@@ -32,6 +44,7 @@
         android:textOn="howling"
         android:textOff="stopped"
         android:onClick="onSwitchToggled"
+        android:textColor="#AC976A"
         android:checked="false"/>
 
 </LinearLayout>

@@ -68,7 +68,6 @@ public class EventHowlerURLRetrieverService extends Service{
 	{
 		List<JSONObject> list = EventHowlerJSONHelper.extractFromURL(url);
 		
-		
 		for(JSONObject entry: list) {
 			try {
 				extractParticipants(entry);

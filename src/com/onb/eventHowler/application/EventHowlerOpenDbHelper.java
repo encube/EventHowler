@@ -19,7 +19,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	private static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
 	private static final String PARTICIPANT_COLUMN_STATUS = "status";
 	private static final String PARTICIPANT_COLUMN_TRANSACTION_ID = "transactionId";
-	private static final String PARTICIPANT_COLUMN_MESSAGE = "Message";
+	private static final String PARTICIPANT_COLUMN_MESSAGE = "message";
 	
 	private static final String MESSAGE_COLUMN_ID = "message_id";
 	private static final String MESSAGE_COLUMN_MESSAGE = "message";
@@ -113,6 +113,8 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
 		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, replyMessage);
+		
+		Log.d("UPDATE", participant.getPhoneNumber() + participant.getStatus() + participant.getTransactionId() + replyMessage);
 		
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
 	}

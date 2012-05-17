@@ -28,8 +28,8 @@ public class EventHowlerSenderService extends Service{
 			COLUMN_MESSAGES = 1,
 			INITIAL_POSITION = 0;
 	
-	private String id = "2";
-	private String secretKey = "w";
+//	private String id = "2";
+//	private String secretKey = "w";
 	
 	private Cursor participantCursor;
 	private Cursor messageCursor;
@@ -100,16 +100,16 @@ public class EventHowlerSenderService extends Service{
 			}
 		};
 		
-		EventHowlerURLRetrieverService retriever = new EventHowlerURLRetrieverService();
-		retriever.retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
+		//EventHowlerURLRetrieverService retriever = new EventHowlerURLRetrieverService();
+		//retriever.retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
 		
-		/*/test data
+		//test data
 		openHelper.insertParticipant(new EventHowlerParticipant("15555215556", "2134", "FOR_SEND_INVITATION"));
 		openHelper.insertParticipant(new EventHowlerParticipant("15555215558", "3314", "FOR_SEND_INVITATION"));
 		openHelper.updateStatus(new EventHowlerParticipant("15555215558", "6839", "FOR_SEND_REPLY"), "thank you for attending you confirmation code is 35dh2h");
 		openHelper.insertParticipant(new EventHowlerParticipant("15555215560", "9863", "FOR_SEND_INVITATION"));
-		openHelper.insertParticipant(new EventHowlerParticipant("15555215562", "5324", "FOR_SEND_INVITATION"));*/
-		//openHelper.populateMessages("Hello fella, i would like to invite for a pack party ");
+		openHelper.insertParticipant(new EventHowlerParticipant("15555215562", "5324", "FOR_SEND_INVITATION"));
+		openHelper.populateMessages("Hello fella, i would like to invite for a pack party ");
 		//test data 
 		
 		Toast.makeText(this, "event Howler Sender service started",

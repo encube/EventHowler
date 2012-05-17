@@ -1,8 +1,5 @@
 package com.onb.eventHowler.application;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -13,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,16 +17,18 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 public class EventHowlerJSONHelper {
 
-	private static final String ATTRIBUTE_PHONE_NUMBER = "phoneNumber";
-	private static final String ATTRIBUTE_TRANS_ID = "transactionId";
+	public static final String ATTRIBUTE_CONTENT = "contacts";
+	public static final String ATTRIBUTE_PHONE_NUMBER = "phoneNumber";
+	public static final String ATTRIBUTE_TRANS_ID = "transactionId";
+	public static final String ATTRIBUTE_MESSAGE = "invitationMessage";
 	private static final String STATUS_FOR_SENDING = "FOR_SEND_INVITATION";
 	
 	/**
 	 * @param url	URL to the JSON-formatted web page
 	 * @return		list containing JSONArrays generated from the JSON formatted file
 	 */
-	public static List<JSONArray> extractFromURL(String url) {
-		List<JSONArray> jsonList = new ArrayList<JSONArray>();
+	public static List<JSONObject> extractFromURL(String url) {
+		List<JSONObject> jsonList = new ArrayList<JSONObject>();
 		try {
 			URL oracle = new URL(url);
 			URLConnection yc = oracle.openConnection();
@@ -39,7 +37,7 @@ public class EventHowlerJSONHelper {
 			
 			while(jsonReader.hasNextLine()) {
 				String content = jsonReader.nextLine();
-				jsonList.add( getJSONArray(content) );
+				jsonList.add( getJSONObject(content) );
 			}
 			jsonReader.close();
 		} catch (MalformedURLException e) {
@@ -50,44 +48,6 @@ public class EventHowlerJSONHelper {
 			e.printStackTrace();
 		}
 		return Collections.unmodifiableList(jsonList);
-	}
-	
-	/**
-	 * @param filePath	location of the JSON-formatted file
-	 * @return			list containing JSONArrays generated from the JSON formatted file
-	 */
-	public static List<JSONArray> extractJSONFile(String filePath) {
-		List<JSONArray> jsonList = new ArrayList<JSONArray>();
-		
-		try {
-			Scanner jsonReader = new Scanner(new FileInputStream(new File(filePath)));
-		
-			while(jsonReader.hasNextLine()) {
-				String content = jsonReader.nextLine();
-				jsonList.add( getJSONArray(content) );
-			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		return Collections.unmodifiableList(jsonList);
-	}
-	
-	/**
-	 * @param JSONString	JSON-formatted String containing multiple entries
-	 * @return				a JSONArray containing multiple entries extracted from the JSON formatted String
-	 */
-	public static JSONArray getJSONArray(String JSONString) {
-		JSONArray jsonArray = new JSONArray();
-		
-		try {
-			jsonArray = new JSONArray(JSONString);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return jsonArray;
 	}
 	
 	/**
@@ -107,23 +67,6 @@ public class EventHowlerJSONHelper {
 	}
 	
 	/**
-	 * @param jsonArray		the JSONArray containing the entries
-	 * @param index			index of the desired JSONObject in the JSONArray
-	 * @return				JSONObject of a single entry from the JSONArray
-	 */
-	public static JSONObject extractJSONArray(JSONArray jsonArray, int index)	{
-		JSONObject jsonObject = new JSONObject();
-		
-		try {
-			jsonObject = jsonArray.getJSONObject(index);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
-		return jsonObject;
-	}
-	
-	/**
 	 * @param jsonObject		the JSONObject to be converted
 	 * @return					EventHowlerParticipant object derived from JSONObject
 	 * @throws JSONException
@@ -131,10 +74,8 @@ public class EventHowlerJSONHelper {
 	public static EventHowlerParticipant convertJSONObjectToParticipant(JSONObject jsonObject) throws JSONException {
 		String phoneNumber = jsonObject.getString(ATTRIBUTE_PHONE_NUMBER);
 		String transactionId = jsonObject.getString(ATTRIBUTE_TRANS_ID);
-		EventHowlerParticipant participant = new EventHowlerParticipant(phoneNumber, transactionId, STATUS_FOR_SENDING);
-
 		
-		return participant;
+		return new EventHowlerParticipant(phoneNumber, transactionId, STATUS_FOR_SENDING);
 	}
 	
 }

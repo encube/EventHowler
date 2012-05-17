@@ -13,11 +13,14 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 public class EventHowlerURLRetrieverService extends Service{
 
 	private static EventHowlerOpenDbHelper openHelper;
-	private static final String QUERY_URL_FORMAT = "EventHowlerApp/query?id=%ssecretKey=%s";
+	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?id=%s&secretKey=%s";
+	private static final String WEB_DOMAIN = "10.10.6.83";
+	private static final String PORT_NO = "8080";
 	
 	@Override
 	public void onCreate() {
@@ -37,9 +40,9 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @param id			unique event id
 	 * @param secretKey		corresponding event key
 	 */
-	public void retrieveAndStoreParticipantsFromIdAndKey(String id, String secretKey){
+	public void retrieveAndStoreEventInfoFromIdAndKey(String id, String secretKey){
 		String query = generateQueryURL(id, secretKey);
-		retrieveAndStoreParticipantListFromURL(query);
+		retrieveAndStoreEventInfoFromURL(query);
 	}
 	
 	/**
@@ -50,36 +53,74 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @return				generated query URL
 	 */
 	public String generateQueryURL(String id, String secretKey) {
-		return String.format(QUERY_URL_FORMAT, id, secretKey);
+		Log.d("generateQueryURL", String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, secretKey));
+		return String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, secretKey);
 	}
 
 	/**
-	 * Retrieves a JSON formatted String from a specified String url.
+	 * Retrieves a JSON formatted String from a specified URL.
 	 * Stores the participant data from the JSON formatted String into
 	 * the local database.
 	 * 
-	 * @param url location of webpage to retrieve and store data from
+	 * @param url location of web page to retrieve and store data from
 	 */
-	public void retrieveAndStoreParticipantListFromURL(String url)
+	public void retrieveAndStoreEventInfoFromURL(String url)
 	{
-		List<JSONArray> list = EventHowlerJSONHelper.extractFromURL(url);
+		List<JSONObject> list = EventHowlerJSONHelper.extractFromURL(url);
 		
-		for(JSONArray jArray: list) {
-			for(int i = 0; i < jArray.length(); i++){
-				try {
-					JSONObject jObject = jArray.getJSONObject(i);
-					storeAsParticipant(jObject);
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+		
+		for(JSONObject entry: list) {
+			try {
+				extractParticipants(entry);
+				extractMessage(entry);
+			} catch (JSONException e) {
+				e.printStackTrace();
+				continue;
+			}			
 		}
 	}
 	
 	/**
-	 * Creates an EventHowlerParticipant object from a JSONObject and
-	 * stores it as a row in the database.
+	 * Extracts and stores all participant data from a single JSONObject 
+	 * representing a JSON formatted query result.
+	 * 
+	 * @param entry				JSONObject representing a single query result
+	 * @throws JSONException
+	 */
+	public void extractParticipants(JSONObject entry) {
+		try{
+			JSONArray participants = entry.getJSONArray(EventHowlerJSONHelper.ATTRIBUTE_CONTENT);
+			
+			for(int i = 0; i < participants.length(); i++) {
+				try {
+					JSONObject participant = participants.getJSONObject(i);
+					storeAsParticipant(participant);
+				} catch (JSONException e) {
+					e.printStackTrace();
+					continue;
+				}
+			}
+		}
+		catch (JSONException e){
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Extracts and stores message from a single JSONObject 
+	 * representing a JSON formatted query.
+	 * 
+	 * @param entry				JSONObject representing a single query result
+	 * @throws JSONException
+	 */
+	public void extractMessage(JSONObject entry) throws JSONException {
+		String message = entry.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
+		openHelper.populateMessages(message);
+	}
+	
+	/**
+	 * Creates an EventHowlerParticipant from a JSONObject and
+	 * stores it in the database.
 	 * 
 	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException

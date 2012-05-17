@@ -74,8 +74,8 @@ public class EventHowlerURLRetrieverService extends Service{
 				extractParticipants(entry);
 				extractMessage(entry);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				continue;
 			}			
 		}
 	}
@@ -87,12 +87,22 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @param entry				JSONObject representing a single query result
 	 * @throws JSONException
 	 */
-	public void extractParticipants(JSONObject entry) throws JSONException {
-		JSONArray participants = entry.getJSONArray(EventHowlerJSONHelper.ATTRIBUTE_CONTENT);
-		
-		for(int i = 0; i < participants.length(); i++) {
-			JSONObject participant = participants.getJSONObject(i);
-			storeAsParticipant(participant);
+	public void extractParticipants(JSONObject entry) {
+		try{
+			JSONArray participants = entry.getJSONArray(EventHowlerJSONHelper.ATTRIBUTE_CONTENT);
+			
+			for(int i = 0; i < participants.length(); i++) {
+				try {
+					JSONObject participant = participants.getJSONObject(i);
+					storeAsParticipant(participant);
+				} catch (JSONException e) {
+					e.printStackTrace();
+					continue;
+				}
+			}
+		}
+		catch (JSONException e){
+			e.printStackTrace();
 		}
 	}
 	

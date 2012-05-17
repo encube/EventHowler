@@ -31,10 +31,13 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	            		
             		openHelper.updateStatus(new EventHowlerParticipant(
        				msgs[i].getDisplayOriginatingAddress(), "", msgs[i].getDisplayMessageBody()), "");
+            		Log.d("EventHowlerBroadcastReceiver", msgs[i].getDisplayMessageBody());
 
 	            	Log.d("EventHowlerBroadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	         	}
-            	Log.d("EventHowlerBroadcastReceiver", "unknown address " + msgs[i].getOriginatingAddress());
+            	else{
+            		Log.d("EventHowlerBroadcastReceiver", "unknown address " + msgs[i].getOriginatingAddress());
+            	}
 	        }
             openHelper.close();
 	    }

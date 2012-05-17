@@ -23,17 +23,21 @@ public class EventHowlerSenderService extends Service{
 	
 	private static final int COLUMN_PNUMBER  = 0, 
 			COLUMN_STATUS  = 1,
-			COLUMN_REPLY  = 2,
+			COLUMN_TRANSACTION_ID =2,
+			COLUMN_REPLY  = 3,
 			COLUMN_MESSAGES = 1,
 			INITIAL_POSITION = 0;
-	
-	private Intent sentIntent = new Intent("SENT_SMS_ACTION");;
-	private PendingIntent sentPI;
 	
 	private Cursor participantCursor;
 	private Cursor messageCursor;
 	private String invitationMessage;
 	private BroadcastReceiver sentSMSActionReceiver;
+	private BroadcastReceiver deliveredSMSActionReceiver;
+	
+	// DO NOT TOUCH THE VALUES, IT IS USE IN SUBSTRINGS. CAN CAUSE RUNTIME ERROR
+	private String SENT_SMS_ACTION = "SENT_SMS_ACTION";
+	private String DELIVERED_SMS_ACTION = "DELIVERED_SMS_ACTION";
+	
 
 	
 	@Override
@@ -52,26 +56,48 @@ public class EventHowlerSenderService extends Service{
 	public int onStartCommand(Intent intent, int flags, int startId) {
 				
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
+		
 		sentSMSActionReceiver = new BroadcastReceiver(){
 			@Override
-			public void onReceive(Context _context, Intent _intent){
+			public void onReceive(Context _context, Intent intent){
+				String transactionId;
+				transactionId = intent.getAction().toString().substring(16);
 				switch (getResultCode()){
 				case Activity.RESULT_OK:
-					broadcastReceiverAssistant(1);
+					Log.d("transactionId", transactionId);
+					sentSMSBroadcastReceiverAssistant(1, transactionId);
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-					broadcastReceiverAssistant(2);
+					sentSMSBroadcastReceiverAssistant(2, transactionId);
 					break;
 				case SmsManager.RESULT_ERROR_RADIO_OFF:
-					broadcastReceiverAssistant(3);
+					sentSMSBroadcastReceiverAssistant(3, transactionId);
 					break;
 				case SmsManager.RESULT_ERROR_NULL_PDU:
-					broadcastReceiverAssistant(4);
+					sentSMSBroadcastReceiverAssistant(4, transactionId);
 					break;
 				}
 			}
 		};
-		sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, sentIntent, 0);
+		
+		deliveredSMSActionReceiver = new BroadcastReceiver() {	
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String transactionId;
+				transactionId = intent.getAction().toString().substring(21);
+				switch (getResultCode()) {
+				case Activity.RESULT_OK:
+					Log.d("transactionId", transactionId);
+					Log.d("delevery intent", "delivery intent received, successful");
+					deliveredSMSBroadcastReceiver(1, transactionId);
+					break;
+				case Activity.RESULT_CANCELED:
+					Log.d("delivery intent", "delivery intent received, unsuccessful");
+					deliveredSMSBroadcastReceiver(1, transactionId);
+					break;
+				}	
+			}
+		};
 		
 		EventHowlerURLRetrieverService retriever = new EventHowlerURLRetrieverService();
 		String id = "2";
@@ -91,7 +117,7 @@ public class EventHowlerSenderService extends Service{
 				Toast.LENGTH_SHORT).show();
 		application = (EventHowlerApplication)getApplication();
 		
-		participantCursor = openHelper.getAllParticipantsWithUnsentInvites();
+		participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
 		messageCursor = openHelper.getAllMesssages();
 		messageCursor.moveToPosition(INITIAL_POSITION);
 		invitationMessage = messageCursor.getString(COLUMN_MESSAGES);
@@ -107,13 +133,11 @@ public class EventHowlerSenderService extends Service{
 			public void run() {
 				int currentPosition = 0;
 				
+				
 				while(true){
 					if(participantCursor.getCount() == 0){
-						Log.d("in loop", "running if part");
-						try {
-							Thread.sleep(2000);
-						}
-						catch (Exception e) {Log.d("sender service", "nag-pupuyat, ayaw magsleep");}
+						Log.d("startSeekingForDataToBeSent", "loop running if part");
+						threadSleep();
 						
 						if(!application.hasOngoingEvent()){
 							participantCursor.close();
@@ -122,28 +146,32 @@ public class EventHowlerSenderService extends Service{
 							break;
 						}
 						participantCursor.close();
-						participantCursor = openHelper.getAllParticipantsWithUnsentInvites();
+						participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
 						
 					}
 					else{
-						Log.d("in loop", "running else part");
+						Log.d("startSeekingForDataToBeSent", "loop running else part");
+						threadSleep();
 						participantCursor.moveToPosition(currentPosition);
 						
+						registerReceiver(deliveredSMSActionReceiver, 
+								new IntentFilter(DELIVERED_SMS_ACTION + "_" + participantCursor.getString(COLUMN_TRANSACTION_ID)));
+						registerReceiver(sentSMSActionReceiver, 
+								new IntentFilter(SENT_SMS_ACTION + "_" + participantCursor.getString(COLUMN_TRANSACTION_ID)));
+						
 						if(participantCursor.getString(COLUMN_STATUS).equals("FOR_SEND_INVITATION")){
-							sendSMS(participantCursor.getString(COLUMN_PNUMBER), invitationMessage);
 							
-							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
+							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
+									invitationMessage, participantCursor.getString(COLUMN_TRANSACTION_ID));
+							Log.d("startSeekingForDataToBeSent", "sending invitation to " + participantCursor.getString(COLUMN_PNUMBER));
+							
 						}
 						else if(participantCursor.getString(COLUMN_STATUS).equals("FOR_SEND_REPLY")){
-							sendSMS(participantCursor.getString(COLUMN_PNUMBER), participantCursor.getString(COLUMN_REPLY));
 							
-							registerReceiver(sentSMSActionReceiver, new IntentFilter("SENT_SMS_ACTION"));
+							sendSMS(participantCursor.getString(COLUMN_PNUMBER),
+									participantCursor.getString(COLUMN_REPLY), participantCursor.getString(COLUMN_TRANSACTION_ID));
+							Log.d("startSeekingForDataToBeSent", "sending reply to " + participantCursor.getString(COLUMN_PNUMBER));
 						}
-						
-						try {
-							Thread.sleep(2000);
-						}
-						catch (Exception e) {Log.d("sender service", "nag-pupuyat, ayaw magsleep");}
 						
 						if(currentPosition+1<participantCursor.getCount()){
 							currentPosition++;
@@ -151,56 +179,92 @@ public class EventHowlerSenderService extends Service{
 						else if(application.hasOngoingEvent()){
 							currentPosition=0;
 							participantCursor.close();
-							participantCursor = openHelper.getAllParticipantsWithUnsentInvites();
+							participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
 						}
 						else{
+							participantCursor.close();
 							messageCursor.close();
 							openHelper.resetDatabase();
 							break;
 						}
 					}
 				}
+				unregisterReceiver(deliveredSMSActionReceiver);
+				unregisterReceiver(sentSMSActionReceiver);
+				application.setRunning(false);
 				stopSelf();
 			}
+
 		};
 		new Thread(forSendSeeker).start();
 	}
+
+	private void threadSleep() {
+		try {
+			Thread.sleep(2000);
+		}
+		catch (Exception e) {Log.d("startSeekingForDataToBeSent", "UNABLE TO SLEEP");}
+	}
 	
-	private void broadcastReceiverAssistant(int resultCode) {
-		String phoneNumber = participantCursor.getString(COLUMN_PNUMBER);
-		String transactionId = openHelper.getTransactionIdOfPhoneNumber(phoneNumber);
-		switch(resultCode){
-		case 1:
-			Log.d("BR assistant", "code 1, RESULT_OK");
-			//TODO need to keep track of the transaction ID
-			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, transactionId, "SENT"), "");
-			unregisterReceiver(sentSMSActionReceiver);
-			break;
-		case 2:
-			Log.d("BR assistant", "code 2");
-			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, "", "RESULT_ERROR_GENERIC_FAILURE"), "");
-			unregisterReceiver(sentSMSActionReceiver);
-			break;
-		case 3:
-			Log.d("BR assistant", "code 3");
-			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, "", "RESULT_ERROR_RADIO_OFF"), "");
-			unregisterReceiver(sentSMSActionReceiver);
-			break;
-		case 4:
-			Log.d("BR assistant", "code 4");
-			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, "", "RESULT_ERROR_NULL_PDU"), "");
-			unregisterReceiver(sentSMSActionReceiver);
-			break;
+	private void sentSMSBroadcastReceiverAssistant(int resultCode,
+			String transactionId) {
+		
+		String phoneNumber = openHelper.findNumberWithTransactionId(transactionId);
+		if(phoneNumber != "NONE"){
+			switch(resultCode){
+			case 1:
+				Log.d("sentSMSBroadcastReceiverAssistant", "code 1, RESULT_OK " + transactionId);
+				openHelper.updateStatus(new EventHowlerParticipant(
+						phoneNumber, transactionId, "SENT"), "");
+				break;
+			case 2:
+				Log.d("sentSMSBroadcastReceiverAssistant", "code 2");
+				openHelper.updateStatus(new EventHowlerParticipant(
+						phoneNumber, transactionId, "RESULT_ERROR_GENERIC_FAILURE"), "");
+				break;
+			case 3:
+				Log.d("sentSMSBroadcastReceiverAssistant", "code 3");
+				openHelper.updateStatus(new EventHowlerParticipant(
+						phoneNumber, transactionId, "RESULT_ERROR_RADIO_OFF"), "");
+				break;
+			case 4:
+				Log.d("sentSMSBroadcastReceiverAssistant", "code 4");
+				openHelper.updateStatus(new EventHowlerParticipant(
+						phoneNumber, transactionId, "RESULT_ERROR_NULL_PDU"), "");
+				break;
+			}
 		}
 	}
 	
-	private void sendSMS(String phoneNumber, String message) {                
+	private void deliveredSMSBroadcastReceiver(int resultCode,
+			String transactionId) {
+		
+		String phoneNumber = openHelper.findNumberWithTransactionId(transactionId);
+		if(phoneNumber != "NONE"){
+			switch(resultCode){
+			case 1:
+				Log.d("deliverySMSBroadcastReceiver", "code 1, RESULT_OK " + transactionId);
+				openHelper.updateStatus(new EventHowlerParticipant(
+						phoneNumber, transactionId, "SUCCESSFUL_DELIVERY"), "");
+				break;
+			case 2:
+				Log.d("deliverySMSBroadcastReceiver", "code 2");
+				openHelper.updateStatus(new EventHowlerParticipant(
+						phoneNumber, transactionId, "UNSUCESSESFUL_DELIVERY"), "");
+				break;
+			}
+		}
+	}
+	
+	private void sendSMS(String phoneNumber, String message, String transactionId) {
+		
+		Log.d("sendSMS", phoneNumber);
+		PendingIntent sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0,
+				new Intent(SENT_SMS_ACTION + "_" + transactionId), 0);
+		PendingIntent deliveredPI = PendingIntent.getBroadcast(getApplicationContext(), 0,
+				new Intent(DELIVERED_SMS_ACTION + "_" + transactionId), 0);
 	    SmsManager sms = SmsManager.getDefault();
-	    sms.sendTextMessage(phoneNumber, null, message, sentPI, null);     
+	    sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
 	}
 	
 	@Override

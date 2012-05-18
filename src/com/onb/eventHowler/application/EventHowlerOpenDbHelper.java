@@ -94,6 +94,8 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
 		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, "");
 
+		Log.d("UPDATE", participant.getPhoneNumber() + participant.getStatus() + participant.getTransactionId() + "");
+		
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);
 	}
 	

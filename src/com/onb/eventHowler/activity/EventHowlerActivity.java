@@ -34,6 +34,8 @@ public class EventHowlerActivity extends Activity {
 			toggleButton.setChecked(false);
 		}
 		else if(toggleButton.isChecked()){
+			eventId.setEnabled(false);
+			secretKey.setEnabled(false);
     		application.setEventId(eventId.getText().toString());
     		application.setSecretKey(secretKey.getText().toString());
     		application.startRetrievingToURL();
@@ -58,6 +60,8 @@ public class EventHowlerActivity extends Activity {
     			Toast.makeText(getApplicationContext(), "forced stop",
     					Toast.LENGTH_SHORT).show();
     			toggleButton.setChecked(false);
+    			eventId.setEnabled(true);
+    			secretKey.setEnabled(true);
     		}
     	}
     	else{
@@ -74,6 +78,8 @@ public class EventHowlerActivity extends Activity {
     			}
     		};
     		new Thread(finishingChecker).start();
+    		eventId.setEnabled(true);
+			secretKey.setEnabled(true);
     	}
     }
 }

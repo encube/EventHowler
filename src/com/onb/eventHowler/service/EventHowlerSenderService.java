@@ -144,7 +144,6 @@ public class EventHowlerSenderService extends Service{
 					}
 					else{
 						Log.d("startSeekingForDataToBeSent", "loop running else part");
-						threadSleep();
 						
 						registerReceiver(deliveredSMSActionReceiver, 
 								new IntentFilter(DELIVERED_SMS_ACTION + "_" + participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
@@ -165,7 +164,10 @@ public class EventHowlerSenderService extends Service{
 							Log.d("startSeekingForDataToBeSent", "sending reply to " + participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER));
 						}
 						
+						threadSleep();
+						
 						if(!participantCursor.isLast()){
+							Log.d("participant number", participantCursor.getString(0));
 							participantCursor.moveToNext();
 						}
 						else if(application.hasOngoingEvent() && participantCursor.isLast()){

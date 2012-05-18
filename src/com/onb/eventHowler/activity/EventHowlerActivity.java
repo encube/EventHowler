@@ -8,6 +8,7 @@ import com.onb.eventHowler.application.Status;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,20 +37,23 @@ public class EventHowlerActivity extends Activity {
     		application.setEventId(eventId.getText().toString());
     		application.setSecretKey(secretKey.getText().toString());
     		application.startRetrievingToURL();
-    		
-    		Runnable finishingChecker = new Runnable(){
+    		Log.d("wow", "awesome");
+    		application.setEventHowlerURLRetrieverServiceStatus(Status.START);
+    		Runnable urlRetreiverChecker = new Runnable(){
     			public void run(){
     				while(application.getEventHowlerURLRetrieverServiceStatus() == Status.START){
     					try {
 							Thread.sleep(2000);
 						} catch (InterruptedException e) {}
+    					Log.d("not free from loop", "gugugugugug");
     				}
+    				Log.d("free from loop", "fhgfhjfjhg");
     				if(application.getEventHowlerURLRetrieverServiceStatus() == Status.RUNNING){
 						application.startEvent();
 					}
     			}
     		};
-    		new Thread(finishingChecker).start();
+    		new Thread(urlRetreiverChecker).start();
     		if(application.getEventHowlerURLRetrieverServiceStatus() == Status.STOP){
     			Toast.makeText(getApplicationContext(), "forced stop",
     					Toast.LENGTH_SHORT).show();

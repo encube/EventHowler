@@ -16,7 +16,7 @@ public class EventHowlerApplication extends Application{
 	private Status eventHowlerURLRetrieverServiceStatus;
 
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
-	private EventHowlerBroadcastReceiver eventHowlerBraoaBroadcastReceiver = new EventHowlerBroadcastReceiver();
+	private EventHowlerBroadcastReceiver eventHowlerBroadcastReceiver = new EventHowlerBroadcastReceiver();
 	private IntentFilter SMS_RECEIVED_FILTER = new IntentFilter(SMS_RECEIVED);
 	
 	private String eventId, secretKey;
@@ -40,7 +40,7 @@ public class EventHowlerApplication extends Application{
 	public void startEvent(){
 		sendingServiceRunning = true;
 		Log.d("startEvent", "starting event");
-		registerReceiver(eventHowlerBraoaBroadcastReceiver, SMS_RECEIVED_FILTER);
+		registerReceiver(eventHowlerBroadcastReceiver, SMS_RECEIVED_FILTER);
 		startService(new Intent(this, EventHowlerSenderService.class));
 	}
 	
@@ -49,7 +49,7 @@ public class EventHowlerApplication extends Application{
 		runningLastCycle = true;
 		withOngoingEvent = false;
 		if(sendingServiceRunning){
-			unregisterReceiver(eventHowlerBraoaBroadcastReceiver);
+			unregisterReceiver(eventHowlerBroadcastReceiver);
 		}
 		else{
 			runningLastCycle = false;

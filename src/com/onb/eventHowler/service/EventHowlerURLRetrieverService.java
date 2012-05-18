@@ -48,7 +48,6 @@ public class EventHowlerURLRetrieverService extends Service{
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
 		application = (EventHowlerApplication)(getApplication());
 		
-		application.setEventHowlerURLRetrieverServiceStatus(Status.START);
 		String id = application.getEventId();
 		String secretKey = application.getSecretKey();
 
@@ -65,13 +64,13 @@ public class EventHowlerURLRetrieverService extends Service{
 				while(application.hasOngoingEvent()){
 					//application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING); if errors are present.
 					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
-					threadSleep();
 					
 					if(!participantIsEmpty() && !serviceStarted) {
+						Log.d("not empty participant", "here here");
 						startRunning();
 						serviceStarted = true;
 					}
-					
+					threadSleep();
 				}
 			}
 
@@ -159,6 +158,7 @@ public class EventHowlerURLRetrieverService extends Service{
 	}
 	
 	public void startRunning() {
+		Log.d("make it run", "na change ko na");
 		application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING);
 	}
 

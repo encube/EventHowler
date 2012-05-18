@@ -11,10 +11,12 @@ import org.json.JSONObject;
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerJSONHelper;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
+import com.onb.eventHowler.application.Status;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,9 +27,8 @@ public class EventHowlerURLRetrieverService extends Service{
 	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?id=%s&secretKey=%s";
 	private static final String WEB_DOMAIN = "10.10.6.83";
 	private static final String PORT_NO = "8080";
-	
-	private boolean isRunning = false;
-		
+	private EventHowlerApplication application;
+			
 	@Override
 	public void onCreate() {
 		
@@ -42,17 +43,16 @@ public class EventHowlerURLRetrieverService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
-		isRunning = true;
 		Log.d("onStartCommand", "starting URL Retriever");
 		
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
-		EventHowlerApplication app = (EventHowlerApplication)(getApplication());
+		application = (EventHowlerApplication)(getApplication());
 		
-		String id = app.getEventId();
-		String secretKey = app.getSecretKey();
+		application.setEventHowlerURLRetrieverServiceStatus(Status.START);
+		String id = application.getEventId();
+		String secretKey = application.getSecretKey();
 
 		startQuerying(id,secretKey);
-		
 		return Service.START_NOT_STICKY;
 	}
 	
@@ -61,18 +61,25 @@ public class EventHowlerURLRetrieverService extends Service{
 		Thread queryThread = new Thread( new Runnable() {
 			public void run(){				
 				boolean serviceStarted = false;
-				
-				while(isRunning){
-					
+		
+				while(application.hasOngoingEvent()){
+					//application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING); if errors are present.
 					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
 					threadSleep();
 					
-					if(!openHelper.participantIsEmpty() && !serviceStarted) {
-						startService(new Intent(getApplicationContext(), EventHowlerSenderService.class));
+					if(!participantIsEmpty() && !serviceStarted) {
+						startRunning();
 						serviceStarted = true;
 					}
 					
 				}
+			}
+
+			private boolean participantIsEmpty() {
+				Cursor participants = openHelper.getAllParticipants();
+				boolean result = (participants.getCount() == 0);
+				participants.close();
+				return result;
 			}
 		});
 		
@@ -81,7 +88,7 @@ public class EventHowlerURLRetrieverService extends Service{
 	
 	private void threadSleep() {
 		try {
-			Thread.sleep(20000);
+			Thread.sleep(10000);
 		}
 		catch (Exception e) {Log.d("startQuerying", "UNABLE TO SLEEP");}
 	}
@@ -93,7 +100,7 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @param id			unique event id
 	 * @param secretKey		corresponding event key
 	 */
-	public void retrieveAndStoreEventInfoFromIdAndKey(String id, String secretKey){
+	public void retrieveAndStoreEventInfoFromIdAndKey(String id, String secretKey) {
 		String query = generateQueryURL(id, secretKey);
 		retrieveAndStoreEventInfoFromURL(query);
 	}
@@ -117,11 +124,9 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * 
 	 * @param url location of web page to retrieve and store data from
 	 */
-	public void retrieveAndStoreEventInfoFromURL(String url)
-	{
+	public void retrieveAndStoreEventInfoFromURL(String url) {
 		List<JSONObject> list;
 		EventHowlerApplication app = (EventHowlerApplication)getApplication();
-		
 		try {
 			list = EventHowlerJSONHelper.extractFromURL(url);
 			for(JSONObject entry: list) {
@@ -150,12 +155,11 @@ public class EventHowlerURLRetrieverService extends Service{
 	}
 	
 	public void stopRunning() {
-		// TODO Auto-generated method stub
-		isRunning = false;
+		application.setEventHowlerURLRetrieverServiceStatus(Status.STOP);
 	}
 	
 	public void startRunning() {
-		isRunning = true;
+		application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING);
 	}
 
 	/**
@@ -205,8 +209,7 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException
 	 */
-	public void storeAsParticipant(JSONObject jObject) throws JSONException
-	{
+	public void storeAsParticipant(JSONObject jObject) throws JSONException {
 		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
 
 		Log.d("STORING PARTICIPANT", "Phone: " + participant.getPhoneNumber() 

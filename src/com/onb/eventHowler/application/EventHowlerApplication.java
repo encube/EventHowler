@@ -11,12 +11,15 @@ public class EventHowlerApplication extends Application{
 	
 	private static boolean withOngoingEvent;
 	private boolean runningLastCycle;
+	private boolean sendingServiceRunning;
+	
+	private Status eventHowlerURLRetrieverServiceStatus;
 
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private EventHowlerBroadcastReceiver eventHowlerBraoaBroadcastReceiver = new EventHowlerBroadcastReceiver();
 	private IntentFilter SMS_RECEIVED_FILTER = new IntentFilter(SMS_RECEIVED);
 	
-	private String eventId = "1", secretKey = "q";
+	private String eventId, secretKey;
 	
 
 	@Override
@@ -24,22 +27,33 @@ public class EventHowlerApplication extends Application{
 		super.onCreate();
 	}
 		
-	public boolean hasOngoingEvent(){
+	public static boolean hasOngoingEvent(){
 		return withOngoingEvent;
 	}
 	
-	public void startEvent(){
-		Log.d("startEvent", "starting event");
+	public void startRetrievingToURL(){
+		sendingServiceRunning = false;
 		withOngoingEvent = true;
+		startService(new Intent(this, EventHowlerURLRetrieverService.class));
+	}
+	
+	public void startEvent(){
+		sendingServiceRunning = true;
+		Log.d("startEvent", "starting event");
 		registerReceiver(eventHowlerBraoaBroadcastReceiver, SMS_RECEIVED_FILTER);
-		startService(new Intent(this, EventHowlerURLRetrieverService.class));		
+		startService(new Intent(this, EventHowlerSenderService.class));
 	}
 	
 	public void stopEvent(){
 		Log.d("stopEvent", "stopping event");
 		runningLastCycle = true;
 		withOngoingEvent = false;
-		unregisterReceiver(eventHowlerBraoaBroadcastReceiver);
+		if(sendingServiceRunning){
+			unregisterReceiver(eventHowlerBraoaBroadcastReceiver);
+		}
+		else{
+			runningLastCycle = false;
+		}
 	}
 	
 	public boolean isRunning() {
@@ -66,4 +80,12 @@ public class EventHowlerApplication extends Application{
 		this.secretKey = secretKey;
 	}
 	
+	public Status getEventHowlerURLRetrieverServiceStatus() {
+		return eventHowlerURLRetrieverServiceStatus;
+	}
+
+	public void setEventHowlerURLRetrieverServiceStatus(
+			Status eventHowlerURLRetrieverService) {
+		this.eventHowlerURLRetrieverServiceStatus = eventHowlerURLRetrieverService;
+	}
 }

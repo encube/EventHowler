@@ -49,6 +49,7 @@ public class EventHowlerApplication extends Application{
 	}
 	
 	public void stopEvent(){
+		setEventHowlerURLRetrieverServiceStatus(Status.STOP);
 		Log.d("stopEvent", "stopping event");
 		runningLastCycle = true;
 		withOngoingEvent = false;

@@ -225,6 +225,7 @@ public class EventHowlerURLRetrieverService extends Service{
 	
 	@Override
 	public void onDestroy() {
+		stopRunning();
 		Toast.makeText(this, "event Howler sending service destroyed",
 				Toast.LENGTH_SHORT).show();
 		openHelper.close();

@@ -27,7 +27,11 @@ public class EventHowlerApplication extends Application{
 		super.onCreate();
 	}
 		
-	public static boolean hasOngoingEvent(){
+	public boolean hasOngoingEvent(){
+		return withOngoingEvent;
+	}
+	
+	public static boolean hasOngoingEventGlobal() {
 		return withOngoingEvent;
 	}
 	

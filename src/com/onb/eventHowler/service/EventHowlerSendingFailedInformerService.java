@@ -9,6 +9,7 @@ import java.util.Hashtable;
 
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
+import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
 import android.content.Intent;
@@ -16,7 +17,7 @@ import android.database.Cursor;
 import android.util.Log;
 import android.widget.Toast;
 
-public class EventHowlerStatusInformerService extends android.app.Service {
+public class EventHowlerSendingFailedInformerService extends android.app.Service {
 
 	EventHowlerOpenDbHelper database;
 	Cursor replyStatusCursor;
@@ -42,12 +43,12 @@ public class EventHowlerStatusInformerService extends android.app.Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		database = new EventHowlerOpenDbHelper(this);
-		startSendingReply();
+		startSendingReplyIfFailed();
 		return Service.START_NOT_STICKY;
 	}
 
-	public void startSendingReply() {
-		Runnable startSendingReplyRunnable = new Runnable() {
+	public void startSendingReplyIfFailed() {
+		Runnable startSendingReplyIfFailedRunnable = new Runnable() {
 
 			public void run() {
 				HttpURLConnection connection = null;
@@ -59,18 +60,18 @@ public class EventHowlerStatusInformerService extends android.app.Service {
 					replyStatusCursor = database.getAllReplyStatus();
 					replyStatusCursor.moveToFirst();
 					do {
-						int id = replyStatusCursor.getInt(2);
+						String id = replyStatusCursor.getString(2);
 						String status = replyStatusCursor.getString(1);
-						String reply = replyStatusCursor.getString(3);
-						if (isAnswer(reply)) {
+						if (isError(status)) {
 							try {
-								serverAddress = new URL(String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, status));
+								serverAddress = new URL(String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, "FAILED"));
 								connection = (HttpURLConnection)serverAddress
 										.openConnection();
 								connection.setRequestMethod("GET");
 								connection.setDoOutput(true);
 								connection.setReadTimeout(10000);
 								connection.connect();
+								database.updateStatus(new EventHowlerParticipant(replyStatusCursor.getString(0), status, id), "FOR_SEND_INVITATION");
 							} catch (MalformedURLException e) {
 								Log.d("MalformedURLException","Maybe checking if URL is valid.");
 							} catch (ProtocolException e) {
@@ -92,15 +93,15 @@ public class EventHowlerStatusInformerService extends android.app.Service {
 				}
 			}
 
-			private boolean isAnswer(String string) {
-				if (string.toLowerCase().equals("RESULT_OK")) {
+			private boolean isError(String string) {
+				if (string.contains("RESULT_ERROR_")) {
 					return true;
 				} else {
 					return false;
 				}
 			}
 		};
-		Thread startThreadSendingReply = new Thread(startSendingReplyRunnable);
+		Thread startThreadSendingReply = new Thread(startSendingReplyIfFailedRunnable);
 		startThreadSendingReply.start();
 	}
 

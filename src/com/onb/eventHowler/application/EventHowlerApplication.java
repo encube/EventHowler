@@ -32,7 +32,7 @@ public class EventHowlerApplication extends Application{
 		Log.d("startEvent", "starting event");
 		withOngoingEvent = true;
 		registerReceiver(eventHowlerBraoaBroadcastReceiver, SMS_RECEIVED_FILTER);
-		startService(new Intent(this, EventHowlerURLRetrieverService.class));
+		startService(new Intent(this, EventHowlerURLRetrieverService.class));		
 	}
 	
 	public void stopEvent(){
@@ -65,4 +65,5 @@ public class EventHowlerApplication extends Application{
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
 	}
+	
 }

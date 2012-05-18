@@ -28,10 +28,10 @@ public class EventHowlerJSONHelper {
 	/**
 	 * @param url	URL to the JSON-formatted web page
 	 * @return		list containing JSONArrays generated from the JSON formatted file
+	 * @throws IOException 
 	 */
-	public static List<JSONObject> extractFromURL(String url) {
+	public static List<JSONObject> extractFromURL(String url) throws MalformedURLException, IOException {
 		List<JSONObject> jsonList = new ArrayList<JSONObject>();
-		try {
 			URL oracle = new URL(url);
 			URLConnection yc = oracle.openConnection();
 			Scanner jsonReader = new Scanner(new InputStreamReader(
@@ -43,13 +43,6 @@ public class EventHowlerJSONHelper {
 				jsonList.add( getJSONObject(content) );
 			}
 			jsonReader.close();
-		} catch (MalformedURLException e) {
-			
-			e.printStackTrace();
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
 		return Collections.unmodifiableList(jsonList);
 	}
 	

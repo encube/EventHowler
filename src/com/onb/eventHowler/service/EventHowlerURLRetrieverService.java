@@ -1,5 +1,7 @@
 package com.onb.eventHowler.service;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -24,7 +26,8 @@ public class EventHowlerURLRetrieverService extends Service{
 	private static final String WEB_DOMAIN = "10.10.6.83";
 	private static final String PORT_NO = "8080";
 	
-	
+	private boolean isRunning = false;
+		
 	@Override
 	public void onCreate() {
 		
@@ -39,6 +42,7 @@ public class EventHowlerURLRetrieverService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
+		isRunning = true;
 		Log.d("onStartCommand", "starting URL Retriever");
 		
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
@@ -58,7 +62,7 @@ public class EventHowlerURLRetrieverService extends Service{
 			public void run(){				
 				boolean serviceStarted = false;
 				
-				while(true){
+				while(isRunning){
 					
 					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
 					threadSleep();
@@ -115,20 +119,45 @@ public class EventHowlerURLRetrieverService extends Service{
 	 */
 	public void retrieveAndStoreEventInfoFromURL(String url)
 	{
-		List<JSONObject> list = EventHowlerJSONHelper.extractFromURL(url);
+		List<JSONObject> list;
+		EventHowlerApplication app = (EventHowlerApplication)getApplication();
 		
-		for(JSONObject entry: list) {
+		try {
+			list = EventHowlerJSONHelper.extractFromURL(url);
+			for(JSONObject entry: list) {
 
-			extractParticipants(entry);
-			try {
-				extractMessage(entry);
-			} catch (JSONException e) {
-				e.printStackTrace();
-				continue;
-			}			
+				extractParticipants(entry);
+				try {
+					extractMessage(entry);
+				} catch (JSONException e) {
+					e.printStackTrace();
+					continue;
+				}			
+			}
+		} catch (MalformedURLException e1) {
+			// TODO 
+			this.stopRunning();
+			app.stopEvent();
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO
+			this.stopRunning();
+			app.stopEvent();
+			e1.printStackTrace();
 		}
+		
+		
 	}
 	
+	public void stopRunning() {
+		// TODO Auto-generated method stub
+		isRunning = false;
+	}
+	
+	public void startRunning() {
+		isRunning = true;
+	}
+
 	/**
 	 * Extracts and stores all participant data from a single JSONObject 
 	 * representing a JSON formatted query result.
@@ -163,14 +192,10 @@ public class EventHowlerURLRetrieverService extends Service{
 	 * @throws JSONException
 	 */
 	public void extractMessage(JSONObject entry) throws JSONException {
-		System.out.print("<MESSGE>");
 		String message = entry.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
 		Log.d("extractMessage", message);
-		System.out.print(message);
-		System.out.println("</MESSGE>");
-		//openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
+		
 		openHelper.populateMessages(message);
-		//openHelper.checkNumberIfExist("+6345678");
 	}
 	
 	/**

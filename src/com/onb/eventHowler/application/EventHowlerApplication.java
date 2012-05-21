@@ -13,7 +13,7 @@ public class EventHowlerApplication extends Application{
 	private boolean runningLastCycle;
 	private boolean sendingServiceRunning;
 	
-	private Status eventHowlerURLRetrieverServiceStatus;
+	private ServiceStatus eventHowlerURLRetrieverServiceStatus;
 
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private EventHowlerBroadcastReceiver eventHowlerBroadcastReceiver = new EventHowlerBroadcastReceiver();
@@ -41,7 +41,7 @@ public class EventHowlerApplication extends Application{
 	}
 	
 	public void stopEvent(){
-		setEventHowlerURLRetrieverServiceStatus(Status.STOP);
+		setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
 		Log.d("stopEvent", "stopping event");
 		runningLastCycle = true;
 		withOngoingEvent = false;
@@ -85,12 +85,12 @@ public class EventHowlerApplication extends Application{
 		this.secretKey = secretKey;
 	}
 	
-	public Status getEventHowlerURLRetrieverServiceStatus() {
+	public ServiceStatus getEventHowlerURLRetrieverServiceStatus() {
 		return eventHowlerURLRetrieverServiceStatus;
 	}
 
 	public void setEventHowlerURLRetrieverServiceStatus(
-			Status eventHowlerURLRetrieverService) {
+			ServiceStatus eventHowlerURLRetrieverService) {
 		this.eventHowlerURLRetrieverServiceStatus = eventHowlerURLRetrieverService;
 	}
 }

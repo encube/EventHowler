@@ -3,7 +3,7 @@ package com.onb.eventHowler.activity;
 import com.onb.eventHowler.R;
 
 import com.onb.eventHowler.application.EventHowlerApplication;
-import com.onb.eventHowler.application.Status;
+import com.onb.eventHowler.application.ServiceStatus;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -44,24 +44,24 @@ public class EventHowlerActivity extends Activity {
     		application.setEventId(eventId.getText().toString());
     		application.setSecretKey(secretKey.getText().toString());
     		application.startRetrievingToURL();
-    		application.setEventHowlerURLRetrieverServiceStatus(Status.START);
+    		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.START);
     		
     		Runnable urlRetreiverChecker = new Runnable(){
     			public void run(){
-    				while(application.getEventHowlerURLRetrieverServiceStatus() == Status.START){
+    				while(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.START){
     					try {
 							Thread.sleep(2000);
 						} catch (InterruptedException e) {}
     					Log.d("not free from loop", "gugugugugug");
     				}
     				Log.d("free from loop", "fhgfhjfjhg");
-    				if(application.getEventHowlerURLRetrieverServiceStatus() == Status.RUNNING){
+    				if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.RUNNING){
 						application.startEvent();
 					}
     			}
     		};
     		new Thread(urlRetreiverChecker).start();
-    		if(application.getEventHowlerURLRetrieverServiceStatus() == Status.STOP){
+    		if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.STOP){
     			Toast.makeText(getApplicationContext(), "forced stop",
     					Toast.LENGTH_SHORT).show();
     			toggleButton.setChecked(false);

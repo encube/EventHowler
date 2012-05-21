@@ -14,15 +14,11 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	private static final int DATABASE_VERSION = 1;
 	private static final String DATABASE = "eventHowler.db";
 	private static final String TABLE_PARTICIPANTS = "participants";
-	private static final String TABLE_MESSAGES = "messages";
 	
 	private static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
 	private static final String PARTICIPANT_COLUMN_STATUS = "status";
 	private static final String PARTICIPANT_COLUMN_TRANSACTION_ID = "transactionId";
 	private static final String PARTICIPANT_COLUMN_MESSAGE = "message";
-	
-	private static final String MESSAGE_COLUMN_ID = "message_id";
-	private static final String MESSAGE_COLUMN_MESSAGE = "message";
 
 	
 	
@@ -39,11 +35,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 				+ PARTICIPANT_COLUMN_TRANSACTION_ID + " TEXT, "
 				+ PARTICIPANT_COLUMN_MESSAGE  + " TEXT)";
 		db.execSQL(query);
-		
-		query = "CREATE TABLE "+ TABLE_MESSAGES
-				+ " (" + MESSAGE_COLUMN_ID + " INT,"
-				+ MESSAGE_COLUMN_MESSAGE + " TEXT)";
-		db.execSQL(query);
 	}
 
 	@Override
@@ -55,12 +46,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		Log.d("getAllParticipants", "getAllParticipants");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
 									+ TABLE_PARTICIPANTS, null);
-	}
-	
-	public Cursor getAllMesssages(){
-		Log.d("getAllMesssages", "getAllMesssages");
-		return getReadableDatabase().rawQuery("SELECT * FROM " 
-									+ TABLE_MESSAGES, null);
 	}
 	
 	public Cursor getAllParticipantsWithUnsentMessages(){
@@ -83,29 +68,19 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	public void resetDatabase() {
 		Log.d("resetDatabase", "resetting database");
 		getWritableDatabase().delete(TABLE_PARTICIPANTS, "1", null);
-		getWritableDatabase().delete(TABLE_MESSAGES, "1", null);
 	}
 	
-	public void insertParticipant(EventHowlerParticipant participant){
+	public void insertParticipant(EventHowlerParticipant participant, String message){
 		Log.d("insertParticipant", "inserting participant");
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(PARTICIPANT_COLUMN_PNUMBER, participant.getPhoneNumber());
 		contentValues.put(PARTICIPANT_COLUMN_STATUS, participant.getStatus());
 		contentValues.put(PARTICIPANT_COLUMN_TRANSACTION_ID, participant.getTransactionId());
-		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, "");
+		contentValues.put(PARTICIPANT_COLUMN_MESSAGE, message);
 
-		Log.d("UPDATE", participant.getPhoneNumber() + participant.getStatus() + participant.getTransactionId() + "");
+		Log.d("UPDATE", participant.getPhoneNumber() + participant.getStatus() + participant.getTransactionId() + message);
 		
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);
-	}
-	
-	public void populateMessages(String invitationMessage){
-		
-		Log.d("populateMessages", "populating messages");
-		ContentValues invitationMessageValues = new ContentValues();
-		invitationMessageValues.put(MESSAGE_COLUMN_MESSAGE, invitationMessage);
-				
-		getWritableDatabase().insert(TABLE_MESSAGES, null, invitationMessageValues);
 	}
 	
 	public void updateStatus(EventHowlerParticipant participant, String message){

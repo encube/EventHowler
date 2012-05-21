@@ -30,7 +30,7 @@ public class EventHowlerApplication extends Application{
 	public void startRetrievingToURL(){
 		sendingServiceRunning = false;
 		withOngoingEvent = true;
-		startService(new Intent(this, EventHowlerURLRetrieverService.class));
+		startService(new Intent(this, EventHowlerWebQueryService.class));
 	}
 	
 	public void startEvent(){

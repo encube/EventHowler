@@ -130,4 +130,11 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		return phoneNumber;
 	}
 
+	public Cursor getAllParticipantsWithReplies(){
+		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
+		return getReadableDatabase().rawQuery("SELECT * FROM " 
+									+ TABLE_PARTICIPANTS + " WHERE " 
+									+ PARTICIPANT_COLUMN_STATUS 
+									+ " LIKE 'REPLY_RECEIVED'", null);
+	}
 }

@@ -32,10 +32,10 @@ public class EventHowlerJSONHelper {
 	 */
 	public static List<JSONObject> extractFromURL(String url) throws MalformedURLException, IOException {
 		List<JSONObject> jsonList = new ArrayList<JSONObject>();
-			URL oracle = new URL(url);
-			URLConnection yc = oracle.openConnection();
+			URL queryURL = new URL(url);
+			URLConnection queryConnection = queryURL.openConnection();
 			Scanner jsonReader = new Scanner(new InputStreamReader(
-			                            yc.getInputStream()));
+			                            queryConnection.getInputStream()));
 			
 			while(jsonReader.hasNextLine()) {
 				String content = jsonReader.nextLine();

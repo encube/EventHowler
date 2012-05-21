@@ -1,6 +1,7 @@
 package com.onb.eventHowler.service;
 
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
+import com.onb.eventHowler.application.MessageStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +30,7 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
             	if(openHelper.checkNumberIfExist(msgs[i].getOriginatingAddress())){
 	            		
             		openHelper.updateStatus(new EventHowlerParticipant(
-       				msgs[i].getDisplayOriginatingAddress(), "", "REPLY_RECEIVED"), msgs[i].getDisplayMessageBody());
+       				msgs[i].getDisplayOriginatingAddress(), "", MessageStatus.REPLY_RECEIVED.toString()), msgs[i].getDisplayMessageBody());
 
 	            	Log.d("EventHowlerBroadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	         	}

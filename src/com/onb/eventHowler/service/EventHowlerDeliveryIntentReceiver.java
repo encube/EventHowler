@@ -1,6 +1,7 @@
 package com.onb.eventHowler.service;
 
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
+import com.onb.eventHowler.application.MessageStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Activity;
@@ -21,12 +22,12 @@ public class EventHowlerDeliveryIntentReceiver extends BroadcastReceiver{
 		case Activity.RESULT_OK:
 			Log.d("delevery intent", "delivery intent received, successful");
 			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, transactionId, "SUCCESSFUL_DELIVERY"), "");
+					phoneNumber, transactionId, MessageStatus.SUCCESSFUL_DELIVERY.toString()), "");
 			break;
 		case Activity.RESULT_CANCELED:
 			Log.d("delivery intent", "delivery intent received, unsuccessful");
 			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, transactionId, "UNSUCESSESFUL_DELIVERY"), "");
+					phoneNumber, transactionId, MessageStatus.UNSUCCESSFUL_DELIVIERY.toString()), "");
 			break;
 		}
 		openHelper.close();

@@ -12,7 +12,6 @@ import android.util.Log;
 
 public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	
-	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
@@ -31,7 +30,6 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 	            		
             		openHelper.updateStatus(new EventHowlerParticipant(
        				msgs[i].getDisplayOriginatingAddress(), "", "REPLY_RECEIVED"), msgs[i].getDisplayMessageBody());
-            		Log.d("EventHowlerBroadcastReceiver", msgs[i].getDisplayMessageBody());
 
 	            	Log.d("EventHowlerBroadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	         	}

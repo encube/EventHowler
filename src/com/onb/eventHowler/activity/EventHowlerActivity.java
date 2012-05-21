@@ -16,7 +16,6 @@ import android.widget.ToggleButton;
 
 public class EventHowlerActivity extends Activity {
 	
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,23 +23,29 @@ public class EventHowlerActivity extends Activity {
     }
     
     public void onSwitchToggled(View view){
+    	
     	final EventHowlerApplication application = (EventHowlerApplication)getApplication();
+    	
     	ToggleButton toggleButton = (ToggleButton)view.findViewById(R.id.howl_toggle_button);
+    	
     	EditText eventId = (EditText)findViewById(R.id.event_id_edit_text);
 		EditText secretKey = (EditText)findViewById(R.id.secret_key_edit_text);
+		
 		if(eventId.getText().toString().equals("") || secretKey.getText().toString().equals("")){
 			Toast.makeText(getApplicationContext(), "please input event id and secret key",
 					Toast.LENGTH_SHORT).show();
 			toggleButton.setChecked(false);
 		}
 		else if(toggleButton.isChecked()){
+			
 			eventId.setEnabled(false);
 			secretKey.setEnabled(false);
+			
     		application.setEventId(eventId.getText().toString());
     		application.setSecretKey(secretKey.getText().toString());
     		application.startRetrievingToURL();
-    		Log.d("wow", "awesome");
     		application.setEventHowlerURLRetrieverServiceStatus(Status.START);
+    		
     		Runnable urlRetreiverChecker = new Runnable(){
     			public void run(){
     				while(application.getEventHowlerURLRetrieverServiceStatus() == Status.START){
@@ -66,12 +71,14 @@ public class EventHowlerActivity extends Activity {
     	}
     	else{
     		application.stopEvent();
-    		final ProgressDialog dialog = ProgressDialog.show(this, "finishing", "please wait until the last process finish");
+    		final ProgressDialog dialog = ProgressDialog.show(this,
+    				"finishing", "please wait until the last process finish");
+    		
     		Runnable finishingChecker = new Runnable(){
     			public void run(){
-    				while(application.isRunning()){
+    				while(application.isRunningLastCycle()){
     					try {
-							Thread.sleep(2000);
+							Thread.sleep(1000);
 						} catch (InterruptedException e) {}
     				}
     				dialog.dismiss();

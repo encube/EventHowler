@@ -26,14 +26,6 @@ public class EventHowlerApplication extends Application{
 	public void onCreate() {
 		super.onCreate();
 	}
-		
-	public boolean hasOngoingEvent(){
-		return withOngoingEvent;
-	}
-	
-	public static boolean hasOngoingEventGlobal() {
-		return withOngoingEvent;
-	}
 	
 	public void startRetrievingToURL(){
 		sendingServiceRunning = false;
@@ -61,7 +53,15 @@ public class EventHowlerApplication extends Application{
 		}
 	}
 	
-	public boolean isRunning() {
+	public boolean hasOngoingEvent(){
+		return withOngoingEvent;
+	}
+	
+	public static boolean hasOngoingEventGlobal() {
+		return withOngoingEvent;
+	}
+	
+	public boolean isRunningLastCycle() {
 		return runningLastCycle;
 	}
 

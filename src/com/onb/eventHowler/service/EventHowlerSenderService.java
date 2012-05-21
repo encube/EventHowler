@@ -21,13 +21,9 @@ public class EventHowlerSenderService extends Service{
 	private static final int PARTICIPANT_COLUMN_PNUMBER  = 0, 
 			PARTICIPANT_COLUMN_STATUS  = 1,
 			PARTICIPANT_COLUMN_TRANSACTION_ID =2,
-			PARTICIPANT_COLUMN_MESSAGE  = 3,
-			COLUMN_MESSAGES = 1,
-			INITIAL_POSITION = 0;
+			PARTICIPANT_COLUMN_MESSAGE  = 3;
 	
 	private Cursor participantCursor;
-	private Cursor messageCursor;
-	private String invitationMessage;
 	private BroadcastReceiver sentSMSActionReceiver;
 	private BroadcastReceiver deliveredSMSActionReceiver;
 	
@@ -71,9 +67,6 @@ public class EventHowlerSenderService extends Service{
 	private void initializeCursors() {
 		participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
 		participantCursor.moveToFirst();
-		messageCursor = openHelper.getAllMesssages();
-		messageCursor.moveToPosition(INITIAL_POSITION);
-		invitationMessage = messageCursor.getString(COLUMN_MESSAGES);
 	}
 
 	private void startSeekingForDataToBeSentToParticipant() {
@@ -88,7 +81,6 @@ public class EventHowlerSenderService extends Service{
 						
 						if(!application.hasOngoingEvent()){
 							participantCursor.close();
-							messageCursor.close();
 							openHelper.resetDatabase();
 							break;
 						}
@@ -106,22 +98,14 @@ public class EventHowlerSenderService extends Service{
 								new IntentFilter(SENT_SMS_ACTION + "_" 
 										+ participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
 						
-						if(participantCursor.getString(PARTICIPANT_COLUMN_STATUS).equals("FOR_SEND_INVITATION")){
-							
-							sendSMS(participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER),
-									invitationMessage, 
-									participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID));
-							Log.d("startSeekingForDataToBeSent", 
-									"sending invitation to " + participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER));
-							
-						}
-						else if(participantCursor.getString(PARTICIPANT_COLUMN_STATUS).equals("FOR_SEND_REPLY")){
+						if(participantCursor.getString(PARTICIPANT_COLUMN_STATUS).equals(MessageStatus.FOR_SEND.toString())){
 							
 							sendSMS(participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER),
 									participantCursor.getString(PARTICIPANT_COLUMN_MESSAGE), 
 									participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID));
 							Log.d("startSeekingForDataToBeSent", 
-									"sending reply to " + participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER));
+									"sending invitation to " + participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER));
+							
 						}
 						
 						threadSleep();
@@ -137,7 +121,6 @@ public class EventHowlerSenderService extends Service{
 						}
 						else{
 							participantCursor.close();
-							messageCursor.close();
 							openHelper.resetDatabase();
 							break;
 						}

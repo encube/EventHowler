@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerJSONHelper;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
-import com.onb.eventHowler.application.Status;
+import com.onb.eventHowler.application.ServiceStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
@@ -154,12 +154,12 @@ public class EventHowlerURLRetrieverService extends Service{
 	}
 	
 	public void stopRunning() {
-		application.setEventHowlerURLRetrieverServiceStatus(Status.STOP);
+		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
 	}
 	
 	public void startRunning() {
 		Log.d("make it run", "na change ko na");
-		application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING);
+		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.RUNNING);
 	}
 
 	/**

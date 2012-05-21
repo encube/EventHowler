@@ -16,7 +16,7 @@ public class EventHowlerDeliveryIntentReceiver extends BroadcastReceiver{
 	public void onReceive(Context context, Intent intent) {
 		EventHowlerOpenDbHelper openHelper = new EventHowlerOpenDbHelper(context);
 
-		String transactionId =intent.getAction().toString().substring(21);
+		String transactionId =intent.getAction().toString().substring(21); // paki-private static final yung 21 please :D
 		String phoneNumber = openHelper.findNumberWithTransactionId(transactionId);
 		switch (getResultCode()) {
 		case Activity.RESULT_OK:
@@ -27,7 +27,7 @@ public class EventHowlerDeliveryIntentReceiver extends BroadcastReceiver{
 		case Activity.RESULT_CANCELED:
 			Log.d("delivery intent", "delivery intent received, unsuccessful");
 			openHelper.updateStatus(new EventHowlerParticipant(
-					phoneNumber, transactionId, MessageStatus.UNSUCCESSFUL_DELIVIERY.toString()), "");
+					phoneNumber, transactionId, MessageStatus.UNSUCCESSFUL_DELIVERY.toString()), "");
 			break;
 		}
 		openHelper.close();

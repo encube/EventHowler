@@ -22,8 +22,7 @@ public class EventHowlerJSONHelper {
 	public static final String ATTRIBUTE_CONTENT = "contacts";
 	public static final String ATTRIBUTE_PHONE_NUMBER = "contactNumber";
 	public static final String ATTRIBUTE_TRANS_ID = "transactionId";
-	public static final String ATTRIBUTE_MESSAGE = "invitationMessage";
-	private static final String STATUS_FOR_SENDING = "FOR_SEND_INVITATION";
+	public static final String ATTRIBUTE_MESSAGE = "message";
 	
 	/**
 	 * @param url	URL to the JSON-formatted web page
@@ -73,7 +72,7 @@ public class EventHowlerJSONHelper {
 		String transactionId = jObject.getString(ATTRIBUTE_TRANS_ID);
 		Log.d("convertJSONObjectToParticipant", transactionId);
 		
-		return new EventHowlerParticipant(phoneNumber, transactionId, STATUS_FOR_SENDING);
+		return new EventHowlerParticipant(phoneNumber, transactionId, MessageStatus.FOR_SEND.toString());
 	}
 	
 }

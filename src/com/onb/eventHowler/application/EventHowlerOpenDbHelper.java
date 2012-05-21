@@ -15,10 +15,10 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	private static final String DATABASE = "eventHowler.db";
 	private static final String TABLE_PARTICIPANTS = "participants";
 	
-	private static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
-	private static final String PARTICIPANT_COLUMN_STATUS = "status";
-	private static final String PARTICIPANT_COLUMN_TRANSACTION_ID = "transactionId";
-	private static final String PARTICIPANT_COLUMN_MESSAGE = "message";
+	public static final String PARTICIPANT_COLUMN_PNUMBER = "phone_number";
+	public static final String PARTICIPANT_COLUMN_STATUS = "status";
+	public static final String PARTICIPANT_COLUMN_TRANSACTION_ID = "transactionId";
+	public static final String PARTICIPANT_COLUMN_MESSAGE = "message";
 
 	
 	
@@ -130,11 +130,29 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		return phoneNumber;
 	}
 
+	public Cursor getAllParticipantsWithMessageSendingAttempts(){
+		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
+		return getReadableDatabase().rawQuery("SELECT * FROM " 
+									+ TABLE_PARTICIPANTS + " WHERE " 
+									+ PARTICIPANT_COLUMN_STATUS 
+									+ " LIKE '%SENT' OR "
+									+ PARTICIPANT_COLUMN_STATUS 
+									+ " LIKE '%DELIVERY'", null);
+	}
+	
 	public Cursor getAllParticipantsWithReplies(){
 		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
 									+ TABLE_PARTICIPANTS + " WHERE " 
 									+ PARTICIPANT_COLUMN_STATUS 
 									+ " LIKE 'REPLY_RECEIVED'", null);
+	}
+	
+	public static EventHowlerParticipant getParticipantFromCursor(Cursor participants) {
+		String phoneNumber = participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_PNUMBER));
+		String transactionId = participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_TRANSACTION_ID));
+		String status = participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_STATUS));
+		
+		return new EventHowlerParticipant(phoneNumber, transactionId, status);
 	}
 }

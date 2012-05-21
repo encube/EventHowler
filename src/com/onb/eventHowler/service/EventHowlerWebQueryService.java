@@ -27,6 +27,7 @@ public class EventHowlerWebQueryService extends Service{
 	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?id=%s&secretKey=%s";
 	private static final String WEB_DOMAIN = "10.10.6.83";
 	private static final String PORT_NO = "8080";
+	private static final long QUERY_INTERVAL = 10000;
 	private EventHowlerApplication application;
 			
 	@Override
@@ -70,7 +71,7 @@ public class EventHowlerWebQueryService extends Service{
 						startRunning();
 						serviceStarted = true;
 					}
-					threadSleep();
+					threadSleep(QUERY_INTERVAL);
 				}
 			}
 
@@ -85,9 +86,9 @@ public class EventHowlerWebQueryService extends Service{
 		queryThread.start();
 	}
 	
-	private void threadSleep() {
+	private void threadSleep(long msec) {
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(msec);
 		}
 		catch (Exception e) {Log.d("startQuerying", "UNABLE TO SLEEP");}
 	}

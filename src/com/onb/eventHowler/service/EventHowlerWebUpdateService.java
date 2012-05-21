@@ -110,6 +110,7 @@ public class EventHowlerWebUpdateService extends Service {
 	
 	public void updateParticipantStatus(EventHowlerParticipant participant, String status){
 		goToURL(generateUpdateURL(participant.getTransactionId(), status));
+		participant.setStatus(MessageStatus.ERROR_REPORTED.toString());
 		openHelper.updateStatus(participant, "");
 	}
 	

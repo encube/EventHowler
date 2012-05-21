@@ -155,4 +155,8 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		
 		return new EventHowlerParticipant(phoneNumber, transactionId, status);
 	}
+	
+	public static String getMessageFromCursor(Cursor participants) {
+		return participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_MESSAGE));
+	}
 }

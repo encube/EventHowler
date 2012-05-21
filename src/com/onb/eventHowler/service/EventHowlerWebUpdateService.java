@@ -106,6 +106,7 @@ public class EventHowlerWebUpdateService extends Service {
 			}
 		
 		} while (participants.moveToNext());
+		participants.close();
 	}
 	
 	public void updateParticipantStatus(EventHowlerParticipant participant, String status){

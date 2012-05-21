@@ -38,6 +38,7 @@ public class EventHowlerApplication extends Application{
 		Log.d("startEvent", "starting event");
 		registerReceiver(eventHowlerBroadcastReceiver, SMS_RECEIVED_FILTER);
 		startService(new Intent(this, EventHowlerSenderService.class));
+		startService(new Intent(this, EventHowlerWebUpdateService.class));
 	}
 	
 	public void stopEvent(){

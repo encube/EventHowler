@@ -1,7 +1,6 @@
 package com.onb.eventHowler.service;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
@@ -10,6 +9,7 @@ import java.net.URLConnection;
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
 import com.onb.eventHowler.application.MessageStatus;
+import com.onb.eventHowler.application.ServiceStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class EventHowlerWebUpdateService extends Service {
 
@@ -38,7 +39,7 @@ public class EventHowlerWebUpdateService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
-		Log.d("onStartCommand", "starting Web Query (former URL Retriever)");
+		Log.d("onStartCommand", "starting Web Update");
 		
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
 		application = (EventHowlerApplication)(getApplication());
@@ -53,15 +54,8 @@ public class EventHowlerWebUpdateService extends Service {
 				//boolean serviceStarted = false;
 		
 				while(application.hasOngoingEvent()){
-					//application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING); if errors are present.
-					
-					
-					if(!participantIsEmpty()) {
+					if(!participantIsEmpty() && application.getEventHowlerURLRetrieverServiceStatus().equals(ServiceStatus.RUNNING)) {
 						updateWebApp();
-						
-						//Log.d("not empty participant", "here here");
-						//startRunning();
-						//serviceStarted = true;
 					}
 					threadSleep(UPDATE_INTERVAL);
 				}
@@ -139,5 +133,13 @@ public class EventHowlerWebUpdateService extends Service {
 	public String generateUpdateURL(String transId, String status) {
 		Log.d("generateUpdateURL", String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status));
 		return String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status);
+	}
+	
+	@Override
+	public void onDestroy() {
+		Toast.makeText(this, "event Howler query service destroyed",
+				Toast.LENGTH_SHORT).show();
+		openHelper.close();
+		super.onDestroy();
 	}
 }

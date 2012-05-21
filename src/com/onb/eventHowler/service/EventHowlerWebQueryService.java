@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerJSONHelper;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
-import com.onb.eventHowler.application.Status;
+import com.onb.eventHowler.application.ServiceStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
@@ -129,14 +129,7 @@ public class EventHowlerWebQueryService extends Service{
 		try {
 			list = EventHowlerJSONHelper.extractFromURL(url);
 			for(JSONObject entry: list) {
-
 				extractParticipants(entry);
-				try {
-					extractMessage(entry);
-				} catch (JSONException e) {
-					e.printStackTrace();
-					continue;
-				}			
 			}
 		} catch (MalformedURLException e1) {
 			// TODO 
@@ -154,12 +147,12 @@ public class EventHowlerWebQueryService extends Service{
 	}
 	
 	public void stopRunning() {
-		application.setEventHowlerURLRetrieverServiceStatus(Status.STOP);
+		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
 	}
 	
 	public void startRunning() {
 		Log.d("make it run", "na change ko na");
-		application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING);
+		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.RUNNING);
 	}
 
 	/**
@@ -176,7 +169,8 @@ public class EventHowlerWebQueryService extends Service{
 			for(int i = 0; i < participants.length(); i++) {
 				try {
 					JSONObject participant = participants.getJSONObject(i);
-					storeAsParticipant(participant);
+					String message = entry.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
+					storeAsParticipant(participant, message);
 				} catch (JSONException e) {
 					e.printStackTrace();
 					continue;
@@ -188,19 +182,6 @@ public class EventHowlerWebQueryService extends Service{
 		}
 	}
 	
-	/**
-	 * Extracts and stores message from a single JSONObject 
-	 * representing a JSON formatted query.
-	 * 
-	 * @param entry				JSONObject representing a single query result
-	 * @throws JSONException
-	 */
-	public void extractMessage(JSONObject entry) throws JSONException {
-		String message = entry.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
-		Log.d("extractMessage", message);
-		
-		openHelper.populateMessages(message);
-	}
 	
 	/**
 	 * Creates an EventHowlerParticipant from a JSONObject and
@@ -209,17 +190,17 @@ public class EventHowlerWebQueryService extends Service{
 	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException
 	 */
-	public void storeAsParticipant(JSONObject jObject) throws JSONException {
+	public void storeAsParticipant(JSONObject jObject, String message) throws JSONException {
 		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
-
+		
 		Log.d("STORING PARTICIPANT", "Phone: " + participant.getPhoneNumber() 
 				+ "Trans_id: " + participant.getTransactionId());
 		
 		if(openHelper.checkNumberIfExist(participant.getPhoneNumber())) {
-			openHelper.updateStatus(participant, "");
+			openHelper.updateStatus(participant, message);
 		}
 		else {
-			openHelper.insertParticipant(participant);	
+			openHelper.insertParticipant(participant, message);	
 		}
 	}
 	

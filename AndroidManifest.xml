@@ -25,6 +25,7 @@
         </activity>
         <service android:name=".service.EventHowlerWebQueryService"/>
 		<service android:name=".service.EventHowlerSenderService"/>
-		<service android:name=".service.EventHowlerURLRetrieverService"/>
+		<service android:name=".service.EventHowlerWebReplyService"/>
+		<service android:name=".service.EventHowlerWebUpdateService"/>
     </application>
 </manifest>

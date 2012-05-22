@@ -67,7 +67,7 @@ public class EventHowlerWebQueryService extends Service{
 					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
 					
 					if(!participantIsEmpty() && !serviceStarted) {
-						Log.d("not empty participant", "here here");
+						Log.d("not empty participant", "pass here");
 						startRunning();
 						serviceStarted = true;
 					}
@@ -148,6 +148,7 @@ public class EventHowlerWebQueryService extends Service{
 	}
 	
 	public void stopRunning() {
+		sendBroadcast(new Intent("FORCE_STOP"));
 		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
 	}
 	
@@ -170,7 +171,7 @@ public class EventHowlerWebQueryService extends Service{
 			for(int i = 0; i < participants.length(); i++) {
 				try {
 					JSONObject participant = participants.getJSONObject(i);
-					String message = entry.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
+					String message = participant.getString(EventHowlerJSONHelper.ATTRIBUTE_MESSAGE);
 					storeAsParticipant(participant, message);
 				} catch (JSONException e) {
 					e.printStackTrace();

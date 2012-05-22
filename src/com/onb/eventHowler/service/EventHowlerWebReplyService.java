@@ -1,10 +1,12 @@
 package com.onb.eventHowler.service;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Scanner;
 
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
@@ -21,7 +23,7 @@ import android.util.Log;
 public class EventHowlerWebReplyService extends Service {
 
 	private static EventHowlerOpenDbHelper openHelper;
-	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?number=%s&message=%s";
+	private static final String REPLY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?number=%s&message=%s&id=%s&secretKey=%s";
 	private static final String WEB_DOMAIN = "10.10.6.83";
 	private static final String PORT_NO = "8080";
 	private static final long REPLY_INTERVAL = 10000;
@@ -41,16 +43,20 @@ public class EventHowlerWebReplyService extends Service {
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
 		application = (EventHowlerApplication)(getApplication());
 		
+		startReplying();
+		
 		return Service.START_NOT_STICKY;
 	}
 	
-	public void startQuerying()
+	public void startReplying()
 	{		
 		Thread replyThread = new Thread( new Runnable() {
 			public void run(){						
-				while(application.hasOngoingEvent()){					
+				while(application.hasOngoingEvent()){
+					Log.d("while loop of web reply", "gugugugu");
 					if(!participantIsEmpty() && application.getEventHowlerURLRetrieverServiceStatus().equals(ServiceStatus.RUNNING)) {
 						replyToWebApp();
+						Log.d("if part web reply", "gugugugu");
 					}
 					threadSleep(REPLY_INTERVAL);
 				}
@@ -78,9 +84,13 @@ public class EventHowlerWebReplyService extends Service {
 	
 	public void replyToWebApp(){
 		
-		Cursor participants = openHelper.getAllParticipantsWithMessageSendingAttempts();
+		Cursor participants = openHelper.getAllParticipantsWithReplies();
 		participants.moveToFirst();
 		do {
+			if(participants.getCount() == 0) {
+				break;
+			}
+			
 			EventHowlerParticipant participant = EventHowlerOpenDbHelper.getParticipantFromCursor(participants);
 			String status = participant.getStatus();
 			
@@ -103,9 +113,12 @@ public class EventHowlerWebReplyService extends Service {
 	public void goToURL(String url) {
 		try{
 			URL serverAddress = new URL(url);
+			Log.d("Reply goToURL", url);
 			URLConnection connection = serverAddress.openConnection();
-			connection.setReadTimeout(10000);
-			connection.connect();	
+			
+			Scanner jsonReader = new Scanner(new InputStreamReader(
+                    connection.getInputStream()));
+			jsonReader.close();
 		} catch (MalformedURLException e) {
 			Log.d("MalformedURLException","Maybe checking if URL is valid.");
 		} catch (ProtocolException e) {
@@ -118,12 +131,12 @@ public class EventHowlerWebReplyService extends Service {
 	/**
 	 * Generates a URL for updating an entry's status to the web application
 	 * 
-	 * @param transId			unique transaction id
-	 * @param status			current invitation status
+	 * @param phoneNumber			unique transaction id
+	 * @param replyMessage			current invitation status
 	 * @return					generated query URL
 	 */
-	public String generateReplyURL(String transId, String status) {
-		Log.d("generateUpdateURL", String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status));
-		return String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status);
+	public String generateReplyURL(String phoneNumber, String replyMessage) {
+		Log.d("generateReplyURL", String.format(REPLY_URL_FORMAT, WEB_DOMAIN, PORT_NO, phoneNumber.replace("+", ""), replyMessage, application.getEventId(), application.getSecretKey()));
+		return String.format(REPLY_URL_FORMAT, WEB_DOMAIN, PORT_NO, phoneNumber, replyMessage, application.getEventId(), application.getSecretKey());
 	}
 }

@@ -7,6 +7,10 @@ import com.onb.eventHowler.application.ServiceStatus;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,16 +24,28 @@ public class EventHowlerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
     }
     
     public void onSwitchToggled(View view){
     	
     	final EventHowlerApplication application = (EventHowlerApplication)getApplication();
     	
-    	ToggleButton toggleButton = (ToggleButton)view.findViewById(R.id.howl_toggle_button);
-    	
-    	EditText eventId = (EditText)findViewById(R.id.event_id_edit_text);
-		EditText secretKey = (EditText)findViewById(R.id.secret_key_edit_text);
+    	final ToggleButton toggleButton = (ToggleButton)view.findViewById(R.id.howl_toggle_button);
+    	final EditText eventId = (EditText)findViewById(R.id.event_id_edit_text);
+		final EditText secretKey = (EditText)findViewById(R.id.secret_key_edit_text);
+		
+		BroadcastReceiver forceStopActionReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Toast.makeText(context, "forced stop",
+    					Toast.LENGTH_SHORT).show();
+				eventId.setEnabled(true);
+				secretKey.setEnabled(true);
+				toggleButton.setChecked(false);
+			}
+		};
 		
 		if(eventId.getText().toString().equals("") || secretKey.getText().toString().equals("")){
 			Toast.makeText(getApplicationContext(), "please input event id and secret key",
@@ -46,6 +62,7 @@ public class EventHowlerActivity extends Activity {
     		application.startRetrievingToURL();
     		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.START);
     		
+    		registerReceiver(forceStopActionReceiver, new IntentFilter("FORCE_STOP"));
     		Runnable urlRetreiverChecker = new Runnable(){
     			public void run(){
     				while(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.START){
@@ -61,13 +78,13 @@ public class EventHowlerActivity extends Activity {
     			}
     		};
     		new Thread(urlRetreiverChecker).start();
-    		if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.STOP){
-    			Toast.makeText(getApplicationContext(), "forced stop",
-    					Toast.LENGTH_SHORT).show();
-    			toggleButton.setChecked(false);
-    			eventId.setEnabled(true);
-    			secretKey.setEnabled(true);
-    		}
+//    		if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.STOP){
+//    			Toast.makeText(getApplicationContext(), "forced stop",
+//    					Toast.LENGTH_SHORT).show();
+//    			toggleButton.setChecked(false);
+//    			eventId.setEnabled(true);
+//    			secretKey.setEnabled(true);
+//    		}
     	}
     	else{
     		application.stopEvent();

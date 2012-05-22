@@ -53,7 +53,7 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
 									+ TABLE_PARTICIPANTS + " WHERE " 
 									+ PARTICIPANT_COLUMN_STATUS 
-									+ " LIKE 'FOR_SEND_%'", null);
+									+ " = '" + MessageStatus.FOR_SEND.toString() + "'", null);
 	} 
 	
 	public Cursor getAllReplyStatus() {

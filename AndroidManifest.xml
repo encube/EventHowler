@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".service.EventHowlerURLRetrieverService"/>
+        <service android:name=".service.EventHowlerWebQueryService"/>
 		<service android:name=".service.EventHowlerSenderService"/>
 		<service android:name=".service.EventHowlerURLRetrieverService"/>
     </application>

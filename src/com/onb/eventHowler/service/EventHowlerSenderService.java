@@ -75,6 +75,9 @@ public class EventHowlerSenderService extends Service{
 			public void run() {
 				
 				while(true){
+					if(participantCursor.getPosition()<0 && participantCursor.getCount()>0){
+						participantCursor.moveToFirst();
+					}
 					if(participantCursor.getCount() == 0){
 						Log.d("startSeekingForDataToBeSent", "loop running if part");
 						threadSleep();
@@ -86,7 +89,6 @@ public class EventHowlerSenderService extends Service{
 						}
 						participantCursor.close();
 						participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
-						
 					}
 					else{
 						Log.d("startSeekingForDataToBeSent", "loop running else part");

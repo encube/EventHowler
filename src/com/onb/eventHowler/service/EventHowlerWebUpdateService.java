@@ -1,15 +1,8 @@
 package com.onb.eventHowler.service;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Scanner;
-
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
+import com.onb.eventHowler.application.EventHowlerURLHelper;
 import com.onb.eventHowler.application.MessageStatus;
 import com.onb.eventHowler.application.ServiceStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
@@ -24,7 +17,7 @@ import android.widget.Toast;
 public class EventHowlerWebUpdateService extends Service {
 
 	private static EventHowlerOpenDbHelper openHelper;
-	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?transId=%s&status=%s&id=%s&secretKey=%s";
+	private static final String UPDATE_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?transId=%s&status=%s&id=%s&secretKey=%s";
 	private static final String WEB_DOMAIN = "10.10.6.83";
 	private static final String PORT_NO = "8080";
 	private static final String SUCCESS = "SUCCESS";
@@ -51,40 +44,48 @@ public class EventHowlerWebUpdateService extends Service {
 		return Service.START_NOT_STICKY;
 	}
 	
+	/**
+	 * Start updating participant status to web application.
+	 */
 	public void startUpdating()
 	{		
 		Thread queryThread = new Thread( new Runnable() {
-			public void run(){				
-				//boolean serviceStarted = false;
-		
+			public void run(){						
 				while(application.hasOngoingEvent()){
+					
 					if(!participantIsEmpty() && application.getEventHowlerURLRetrieverServiceStatus().equals(ServiceStatus.RUNNING)) {
 						updateWebApp();
 					}
+					
 					threadSleep(UPDATE_INTERVAL);
 				}
 			}
 
+			//TODO transfer to openDBHelper
 			private boolean participantIsEmpty() {
 				Cursor participants = openHelper.getAllParticipants();
 				boolean result = (participants.getCount() == 0);
 				participants.close();
 				return result;
+			}			
+
+			private void threadSleep(long msec) {
+				try {
+					Thread.sleep(msec);
+				}
+				catch (Exception e) {Log.d("startUpdating", "UNABLE TO SLEEP");}
 			}
 		});
 		
 		queryThread.start();
 	}
 	
-	private void threadSleep(long msec) {
-		try {
-			Thread.sleep(msec);
-		}
-		catch (Exception e) {Log.d("startQuerying", "UNABLE TO SLEEP");}
-	}
 	
 	
 	
+	/**
+	 * Update participants' message sending status in Web application
+	 */
 	public void updateWebApp(){
 		
 		Cursor participants = openHelper.getAllParticipantsWithMessageSendingAttempts();
@@ -112,40 +113,27 @@ public class EventHowlerWebUpdateService extends Service {
 		participants.close();
 	}
 	
+	/**
+	 * Update a single participants message sending status to web application
+	 * @param participant	participant to be updated
+	 * @param status		current message sending status, either SUCCESS or FAILED
+	 */
 	public void updateParticipantStatus(EventHowlerParticipant participant, String status){
-		goToURL(generateUpdateURL(participant.getTransactionId(), status));
-		participant.setStatus(MessageStatus.ERROR_REPORTED.toString());
+		EventHowlerURLHelper.goToURL(generateUpdateURL(participant.getTransactionId(), status));
+		participant.setStatus(MessageStatus.STATUS_REPORTED.toString());
 		openHelper.updateStatus(participant, "");
-	}
-	
-	public void goToURL(String url) {
-		try{
-			URL serverAddress = new URL(url);
-			Log.d("Update goToURL", url);
-			URLConnection connection = serverAddress.openConnection();
-			
-			Scanner jsonReader = new Scanner(new InputStreamReader(
-                    connection.getInputStream()));
-			jsonReader.close();
-		} catch (MalformedURLException e) {
-			Log.d("MalformedURLException","Maybe checking if URL is valid.");
-		} catch (ProtocolException e) {
-			Log.d("ProtocolException", "Do check if request is valid.");
-		} catch (IOException e) {
-			Log.d("IOException", "Connection didn't successfully bind.");
-		}
 	}
 	
 	/**
 	 * Generates a URL for updating an entry's status to the web application
 	 * 
-	 * @param transId			unique transaction id
-	 * @param status			current invitation status
-	 * @return					generated query URL
+	 * @param transId	unique transaction id
+	 * @param status	current invitation status
+	 * @return			generated query URL
 	 */
 	public String generateUpdateURL(String transId, String status) {
-		Log.d("generateUpdateURL", String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status,application.getEventId(), application.getSecretKey()));
-		return String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status, application.getEventId(), application.getSecretKey());
+		Log.d("generateUpdateURL", String.format(UPDATE_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status,application.getEventId(), application.getSecretKey()));
+		return String.format(UPDATE_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status, application.getEventId(), application.getSecretKey());
 	}
 	
 	@Override

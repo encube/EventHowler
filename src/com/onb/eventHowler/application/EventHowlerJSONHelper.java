@@ -3,8 +3,7 @@ package com.onb.eventHowler.application;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,12 +28,9 @@ public class EventHowlerJSONHelper {
 	 * @return		list containing JSONArrays generated from the JSON formatted file
 	 * @throws IOException 
 	 */
-	public static List<JSONObject> extractFromURL(String url) throws MalformedURLException, IOException {
+	public static List<JSONObject> extractFromURL(String url) throws MalformedURLException, ProtocolException, IOException {
 		List<JSONObject> jsonList = new ArrayList<JSONObject>();
-			URL queryURL = new URL(url);
-			URLConnection queryConnection = queryURL.openConnection();
-			Scanner jsonReader = new Scanner(new InputStreamReader(
-			                            queryConnection.getInputStream()));
+			Scanner jsonReader = new Scanner(new InputStreamReader(EventHowlerURLHelper.getInputStreamFromURL(url)));
 			
 			while(jsonReader.hasNextLine()) {
 				String content = jsonReader.nextLine();

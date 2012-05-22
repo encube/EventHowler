@@ -56,6 +56,13 @@ public class EventHowlerWebQueryService extends Service{
 		return Service.START_NOT_STICKY;
 	}
 	
+	/**
+	 * Start querying invitations from Web application 
+	 * using unique event id and corresponding secret key.
+	 * 
+	 * @param id			event id
+	 * @param secretKey		corresponding secret key
+	 */
 	public void startQuerying(final String id, final String secretKey)
 	{		
 		Thread queryThread = new Thread( new Runnable() {
@@ -63,7 +70,6 @@ public class EventHowlerWebQueryService extends Service{
 				boolean serviceStarted = false;
 		
 				while(application.hasOngoingEvent()){
-					//application.setEventHowlerURLRetrieverServiceStatus(Status.RUNNING); if errors are present.
 					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
 					
 					if(!participantIsEmpty() && !serviceStarted) {
@@ -71,6 +77,7 @@ public class EventHowlerWebQueryService extends Service{
 						startRunning();
 						serviceStarted = true;
 					}
+					
 					threadSleep(QUERY_INTERVAL);
 				}
 			}
@@ -81,17 +88,17 @@ public class EventHowlerWebQueryService extends Service{
 				participants.close();
 				return result;
 			}
+			
+			private void threadSleep(long msec) {
+				try {
+					Thread.sleep(msec);
+				}
+				catch (Exception e) {Log.d("startQuerying", "UNABLE TO SLEEP");}
+			}
 		});
 		
 		queryThread.start();
-	}
-	
-	private void threadSleep(long msec) {
-		try {
-			Thread.sleep(msec);
-		}
-		catch (Exception e) {Log.d("startQuerying", "UNABLE TO SLEEP");}
-	}
+	}	
 	
 	/**
 	 * Retrieves participant data from the web application 
@@ -143,7 +150,6 @@ public class EventHowlerWebQueryService extends Service{
 			app.stopEvent();
 			e1.printStackTrace();
 		}
-		
 		
 	}
 	

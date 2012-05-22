@@ -59,6 +59,7 @@ public class EventHowlerWebUpdateService extends Service {
 					
 					threadSleep(UPDATE_INTERVAL);
 				}
+				stopSelf();
 			}
 
 			//TODO transfer to openDBHelper

@@ -1,7 +1,6 @@
 package com.onb.eventHowler.activity;
 
 import com.onb.eventHowler.R;
-
 import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.ServiceStatus;
 
@@ -15,25 +14,30 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class EventHowlerActivity extends Activity {
+	
+	EventHowlerApplication application;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        application = (EventHowlerApplication)getApplication();
+        
     }
     
     public void onSwitchToggled(View view){
     	
-    	final EventHowlerApplication application = (EventHowlerApplication)getApplication();
-    	
-    	final ToggleButton toggleButton = (ToggleButton)view.findViewById(R.id.howl_toggle_button);
+    	final ToggleButton toggleButton = (ToggleButton)findViewById(R.id.howl_toggle_button);
     	final EditText eventId = (EditText)findViewById(R.id.event_id_edit_text);
 		final EditText secretKey = (EditText)findViewById(R.id.secret_key_edit_text);
+		final ImageView howling = (ImageView)findViewById(R.id.howling);
+		final ImageView idle = (ImageView)findViewById(R.id.idle);
 		
 		BroadcastReceiver forceStopActionReceiver = new BroadcastReceiver() {
 			
@@ -41,9 +45,13 @@ public class EventHowlerActivity extends Activity {
 			public void onReceive(Context context, Intent intent) {
 				Toast.makeText(context, "forced stop",
     					Toast.LENGTH_SHORT).show();
+				Log.d("receiver", "ui update on force stop");
 				eventId.setEnabled(true);
 				secretKey.setEnabled(true);
 				toggleButton.setChecked(false);
+				howling.setVisibility(8);
+				idle.setVisibility(0);
+				context.unregisterReceiver(this);
 			}
 		};
 		
@@ -56,6 +64,8 @@ public class EventHowlerActivity extends Activity {
 			
 			eventId.setEnabled(false);
 			secretKey.setEnabled(false);
+			howling.setVisibility(0);
+			idle.setVisibility(8);
 			
     		application.setEventId(eventId.getText().toString());
     		application.setSecretKey(secretKey.getText().toString());
@@ -63,47 +73,54 @@ public class EventHowlerActivity extends Activity {
     		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.START);
     		
     		registerReceiver(forceStopActionReceiver, new IntentFilter("FORCE_STOP"));
-    		Runnable urlRetreiverChecker = new Runnable(){
-    			public void run(){
-    				while(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.START){
-    					try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e) {}
-    					Log.d("not free from loop", "gugugugugug");
-    				}
-    				Log.d("free from loop", "fhgfhjfjhg");
-    				if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.RUNNING){
-						application.startEvent();
-					}
-    			}
-    		};
+    		Runnable urlRetreiverChecker = webQueryStatusChecker();
     		new Thread(urlRetreiverChecker).start();
-//    		if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.STOP){
-//    			Toast.makeText(getApplicationContext(), "forced stop",
-//    					Toast.LENGTH_SHORT).show();
-//    			toggleButton.setChecked(false);
-//    			eventId.setEnabled(true);
-//    			secretKey.setEnabled(true);
-//    		}
     	}
     	else{
+    		howling.setVisibility(8);
+			idle.setVisibility(0);
     		application.stopEvent();
-    		final ProgressDialog dialog = ProgressDialog.show(this,
-    				"finishing", "please wait until the last process finish");
     		
-    		Runnable finishingChecker = new Runnable(){
-    			public void run(){
-    				while(application.isRunningLastCycle()){
-    					try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {}
-    				}
-    				dialog.dismiss();
-    			}
-    		};
+    		Runnable finishingChecker = progressDialogSpawner();
     		new Thread(finishingChecker).start();
     		eventId.setEnabled(true);
 			secretKey.setEnabled(true);
     	}
     }
+
+	private Runnable webQueryStatusChecker() {
+		Runnable urlRetreiverChecker = new Runnable(){
+			@Override
+			public void run(){
+				while(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.START){
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {}
+					Log.d("webQueryStatusChecker", "not free from loop");
+				}
+				Log.d("webQueryStatusChecker", "free from loop");
+				if(application.getEventHowlerURLRetrieverServiceStatus() == ServiceStatus.RUNNING){
+					application.startEvent();
+				}
+			}
+		};
+		return urlRetreiverChecker;
+	}
+
+	private Runnable progressDialogSpawner() {
+		final ProgressDialog dialog = ProgressDialog.show(this,
+				"finishing", "please wait until the last process finish");
+		Runnable finishingChecker = new Runnable(){
+			@Override
+			public void run(){
+				while(application.isRunningLastCycle()){
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {}
+				}
+				dialog.dismiss();
+			}
+		};
+		return finishingChecker;
+	}
 }

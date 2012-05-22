@@ -34,9 +34,6 @@ public class EventHowlerBroadcastReceiver extends BroadcastReceiver{
 
 	            	Log.d("EventHowlerBroadcastReceiver", "receive message from " + msgs[i].getOriginatingAddress());
 	         	}
-            	else{
-            		Log.d("EventHowlerBroadcastReceiver", "unknown address " + msgs[i].getOriginatingAddress());
-            	}
 	        }
             openHelper.close();
 	    }

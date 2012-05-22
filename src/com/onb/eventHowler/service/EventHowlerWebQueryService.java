@@ -16,7 +16,6 @@ import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -72,7 +71,7 @@ public class EventHowlerWebQueryService extends Service{
 				while(application.hasOngoingEvent()){
 					retrieveAndStoreEventInfoFromIdAndKey(id, secretKey);
 					
-					if(!participantIsEmpty() && !serviceStarted) {
+					if(!openHelper.isParticipantEmpty() && !serviceStarted) {
 						Log.d("not empty participant", "pass here");
 						startRunning();
 						serviceStarted = true;
@@ -80,13 +79,7 @@ public class EventHowlerWebQueryService extends Service{
 					
 					threadSleep(QUERY_INTERVAL);
 				}
-			}
-
-			private boolean participantIsEmpty() {
-				Cursor participants = openHelper.getAllParticipants();
-				boolean result = (participants.getCount() == 0);
-				participants.close();
-				return result;
+				stopSelf();
 			}
 			
 			private void threadSleep(long msec) {
@@ -153,12 +146,12 @@ public class EventHowlerWebQueryService extends Service{
 		
 	}
 	
-	public void stopRunning() {
+	private void stopRunning() {
 		sendBroadcast(new Intent("FORCE_STOP"));
 		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
 	}
 	
-	public void startRunning() {
+	private void startRunning() {
 		Log.d("make it run", "na change ko na");
 		application.setEventHowlerURLRetrieverServiceStatus(ServiceStatus.RUNNING);
 	}
@@ -214,7 +207,6 @@ public class EventHowlerWebQueryService extends Service{
 	
 	@Override
 	public void onDestroy() {
-		stopRunning();
 		Toast.makeText(this, "event Howler query service destroyed",
 				Toast.LENGTH_SHORT).show();
 		openHelper.close();

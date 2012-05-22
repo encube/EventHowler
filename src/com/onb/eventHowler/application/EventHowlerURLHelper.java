@@ -25,8 +25,8 @@ public class EventHowlerURLHelper {
 			Log.d("Reply goToURL", url);
 			HttpURLConnection connection = (HttpURLConnection) serverAddress.openConnection();
 			connection.connect();
-			//InputStream stream = connection.getInputStream();
-			//stream.close();
+			InputStream stream = connection.getInputStream();
+			stream.close();
 		} catch (MalformedURLException e) {
 			Log.d("MalformedURLException","Maybe checking if URL is valid.");
 		} catch (ProtocolException e) {

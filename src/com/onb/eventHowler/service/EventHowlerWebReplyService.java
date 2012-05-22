@@ -50,15 +50,16 @@ public class EventHowlerWebReplyService extends Service {
 		Thread replyThread = new Thread( new Runnable() {
 			public void run(){						
 				while(application.hasOngoingEvent()){
-					Log.d("while loop of web reply", "gugugugu");
+					Log.d("startReplying", "while loop of web reply");
 					
 					if(!participantIsEmpty() && application.getEventHowlerURLRetrieverServiceStatus().equals(ServiceStatus.RUNNING)) {
 						fetchRepliesFromWebApp();
-						Log.d("if part web reply", "gugugugu");
+						Log.d("startReplying", "if part web reply");
 					}
 					
 					threadSleep(REPLY_INTERVAL);
 				}
+				stopSelf();
 			}
 
 			//TODO transfer to OpenDBHelper

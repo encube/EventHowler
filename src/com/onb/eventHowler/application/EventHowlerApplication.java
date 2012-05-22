@@ -13,7 +13,7 @@ public class EventHowlerApplication extends Application{
 	private boolean runningLastCycle;
 	private boolean sendingServiceRunning;
 	
-	private ServiceStatus eventHowlerURLRetrieverServiceStatus;
+	private ServiceStatus eventHowlerWebQueryServiceStatus;
 
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private EventHowlerBroadcastReceiver eventHowlerBroadcastReceiver = new EventHowlerBroadcastReceiver();
@@ -27,11 +27,20 @@ public class EventHowlerApplication extends Application{
 		super.onCreate();
 	}
 	
+	/**
+	 * starts the {@link EventHowlerWebQueryService}
+	 */
+	
 	public void startRetrievingToURL(){
 		sendingServiceRunning = false;
 		withOngoingEvent = true;
 		startService(new Intent(this, EventHowlerWebQueryService.class));
 	}
+	
+	/**
+	 * starts the {@link EventHowlerSenderService}, {@link EventHowlerWebUpdateService} and {@link EventHowlerWebReplyService} in NOT_STICKY mode.
+	 * also register {@link EventHowlerBroadcastReceiver} to start filtering incoming messages.
+	 */
 	
 	public void startEvent(){
 		sendingServiceRunning = true;
@@ -41,6 +50,11 @@ public class EventHowlerApplication extends Application{
 		startService(new Intent(this, EventHowlerWebUpdateService.class));
 		startService(new Intent(this, EventHowlerWebReplyService.class));
 	}
+	
+	/**
+	 * sets withOngoingEvent to false to stop services and runningLastCycle to true for 
+	 * {@link EventHowlerSenderService} to run last cycle to avoid skipping message to be sent. 
+	 */
 	
 	public void stopEvent(){
 		setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
@@ -55,44 +69,86 @@ public class EventHowlerApplication extends Application{
 		}
 	}
 	
+	/**
+	 * 
+	 * @return the state of hasOnGoingEvent field
+	 */
+	
 	public boolean hasOngoingEvent(){
 		return withOngoingEvent;
 	}
 	
-	public static boolean hasOngoingEventGlobal() {
-		return withOngoingEvent;
-	}
+	/**
+	 * 
+	 * @return the state of runningLastCycle field
+	 */
 	
 	public boolean isRunningLastCycle() {
 		return runningLastCycle;
 	}
 
+	/**
+	 * 
+	 * @param finishing		state to be set to runningLstCyle.
+	 */
+	
 	public void setRunning(boolean finishing) {
 		this.runningLastCycle = finishing;
 	}
 
+	/**
+	 * 
+	 * @return		event id of the current event
+	 */
+	
 	public String getEventId() {
 		return eventId;
 	}
 
+	/**
+	 * 
+	 * @param eventId		event id to be set
+	 */
+	
 	public void setEventId(String eventId) {
 		this.eventId = eventId;
 	}
 
+	/**
+	 * 
+	 * @return		secret key of the current event
+	 */
+	
 	public String getSecretKey() {
 		return secretKey;
 	}
 
+	/**
+	 * 
+	 * @param secretKey		secret key to be set
+	 */
+	
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
 	}
 	
+	/**
+	 * 
+	 * @return		status of {@link EventHowlerWebQueryService}
+	 */
+	
 	public ServiceStatus getEventHowlerURLRetrieverServiceStatus() {
-		return eventHowlerURLRetrieverServiceStatus;
+		return eventHowlerWebQueryServiceStatus;
 	}
 
+	/**
+	 * sets the status
+	 * 
+	 * @param eventHowlerURLRetrieverService		Status to be set
+	 */
+	
 	public void setEventHowlerURLRetrieverServiceStatus(
 			ServiceStatus eventHowlerURLRetrieverService) {
-		this.eventHowlerURLRetrieverServiceStatus = eventHowlerURLRetrieverService;
+		this.eventHowlerWebQueryServiceStatus = eventHowlerURLRetrieverService;
 	}
 }

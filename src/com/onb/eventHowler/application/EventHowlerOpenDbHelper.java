@@ -42,11 +42,32 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		
 	}
 	
+	/**
+	 * 
+	 * @return 	true is participant table is empty, false otherwise.
+	 */
+	public boolean isParticipantEmpty(){
+		Cursor cursor = getAllParticipants();
+		boolean result = (cursor.getCount() == 0);
+		cursor.close();
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @return 	Cursor representing the current state of the participant table
+	 */
+	
 	public Cursor getAllParticipants() {
 		Log.d("getAllParticipants", "getAllParticipants");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
 									+ TABLE_PARTICIPANTS, null);
 	}
+	
+	/**
+	 * 
+	 * @return		Cursor representing all the participant with FOR_SEND status
+	 */
 	
 	public Cursor getAllParticipantsWithUnsentMessages(){
 		Log.d("getAllParticipantsWithUnsentMessages", "getAllParticipantsWithUnsentMessages");
@@ -65,10 +86,13 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ " LIKE 'FOR_SEND_%'", null);
 	}
 	
-	public void resetDatabase() {
-		Log.d("resetDatabase", "resetting database");
-		getWritableDatabase().delete(TABLE_PARTICIPANTS, "1", null);
-	}
+	
+	/**
+	 * insert a participant in participant table
+	 * 
+	 * @param participant		the participant
+	 * @param message			message to/from participant
+	 */
 	
 	public void insertParticipant(EventHowlerParticipant participant, String message){
 		Log.d("insertParticipant", "inserting participant");
@@ -83,6 +107,13 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		getWritableDatabase().insert(TABLE_PARTICIPANTS, null, contentValues);
 	}
 	
+	/**
+	 * update a participant in participant table
+	 * 
+	 * @param participant		the participant
+	 * @param message			message to/from participant
+	 */
+	
 	public void updateStatus(EventHowlerParticipant participant, String message){
 		Log.d("updateStatus", "updating status");
 		ContentValues contentValues = new ContentValues();
@@ -96,6 +127,13 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		getWritableDatabase().update(TABLE_PARTICIPANTS, contentValues, PARTICIPANT_COLUMN_PNUMBER + " = " + participant.getPhoneNumber(), null);
 	}
 
+	/**
+	 * check if a number occur in the table
+	 * 
+	 * @param phoneNumber		number of the participant
+	 * @return					true is phoneNumber exist
+	 */
+	
 	public boolean checkNumberIfExist(String phoneNumber) {
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
 				+ TABLE_PARTICIPANTS + " WHERE " 
@@ -112,6 +150,13 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		
 	}
 
+	/**
+	 * return the phoneNumber of a participant with transaction ID
+	 * 
+	 * @param transactionId			the transaction ID of the participant
+	 * @return						the phoneNumber of the participant
+	 */
+	
 	public String findNumberWithTransactionId(String transactionId) {
 		String phoneNumber;
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
@@ -140,6 +185,11 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ " LIKE '%DELIVERY'", null);
 	}
 	
+	/**
+	 * 
+	 * @return Cursor representing all the participants the already reply
+	 */
+	
 	public Cursor getAllParticipantsWithReplies(){
 		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
@@ -147,6 +197,12 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ PARTICIPANT_COLUMN_STATUS 
 									+ " LIKE 'REPLY_RECEIVED'", null);
 	}
+	
+	/**
+	 *  gets the participant from the participant table
+	 * @param participants			a participant row
+	 * @return						a {@link EventHowlerParticipant}
+	 */
 	
 	public static EventHowlerParticipant getParticipantFromCursor(Cursor participants) {
 		String phoneNumber = participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_PNUMBER));
@@ -156,7 +212,23 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		return new EventHowlerParticipant(phoneNumber, transactionId, status);
 	}
 	
+	/**
+	 * gets the message of a participant
+	 * 
+	 * @param participants			a row in the participant table
+	 * @return						message to/from the participant
+	 */
+	
 	public static String getMessageFromCursor(Cursor participants) {
 		return participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_MESSAGE));
+	}
+	
+	/**
+	 * resets the database. deleting all rows in participant table.
+	 */
+	
+	public void resetDatabase() {
+		Log.d("resetDatabase", "resetting database");
+		getWritableDatabase().delete(TABLE_PARTICIPANTS, "1", null);
 	}
 }

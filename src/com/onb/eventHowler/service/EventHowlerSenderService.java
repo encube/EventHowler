@@ -83,8 +83,7 @@ public class EventHowlerSenderService extends Service{
 						threadSleep();
 						
 						if(!application.hasOngoingEvent()){
-							participantCursor.close();
-							openHelper.resetDatabase();
+							closeDatabase();
 							break;
 						}
 						participantCursor.close();
@@ -122,22 +121,27 @@ public class EventHowlerSenderService extends Service{
 							participantCursor.moveToFirst();
 						}
 						else{
-							participantCursor.close();
-							openHelper.resetDatabase();
+							closeDatabase();
 							break;
 						}
 					}
 				}
-				unregisterReceiver(deliveredSMSActionReceiver);
-				unregisterReceiver(sentSMSActionReceiver);
-				application.setRunning(false);
-				stopSelf();
 			}
+
 
 		};
 		new Thread(forSendSeeker).start();
 	}
 
+	private void closeDatabase() {
+		participantCursor.close();
+		openHelper.resetDatabase();
+		unregisterReceiver(deliveredSMSActionReceiver);
+		unregisterReceiver(sentSMSActionReceiver);
+		application.setRunning(false);
+		stopSelf();
+	}
+	
 	private void threadSleep() {
 		try {
 			Thread.sleep(2000);

@@ -31,8 +31,6 @@ public class EventHowlerSenderService extends Service{
 	private String SENT_SMS_ACTION = "SENT_SMS_ACTION";
 	private String DELIVERED_SMS_ACTION = "DELIVERED_SMS_ACTION";
 	
-
-	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -53,6 +51,8 @@ public class EventHowlerSenderService extends Service{
 		
 		sentSMSActionReceiver = new EventHowlerSentIntentReceiver();
 		deliveredSMSActionReceiver = new EventHowlerDeliveryIntentReceiver();
+		
+		application.setSenderServiceFinished(false);
 		
 		Toast.makeText(this, "event Howler Sender service started",
 				Toast.LENGTH_SHORT).show();
@@ -75,31 +75,22 @@ public class EventHowlerSenderService extends Service{
 			public void run() {
 				
 				while(true){
-					if(participantCursor.getPosition()<0 && participantCursor.getCount()>0){
-						participantCursor.moveToFirst();
-					}
 					if(participantCursor.getCount() == 0){
 						Log.d("startSeekingForDataToBeSent", "loop running if part");
 						threadSleep();
 						
 						if(!application.hasOngoingEvent()){
-							closeDatabase();
 							break;
 						}
-						participantCursor.close();
-						participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
+						refreshParticipantCursor();
 					}
 					else{
 						Log.d("startSeekingForDataToBeSent", "loop running else part");
 						
-						registerReceiver(deliveredSMSActionReceiver, 
-								new IntentFilter(DELIVERED_SMS_ACTION + "_" 
-										+ participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
-						registerReceiver(sentSMSActionReceiver, 
-								new IntentFilter(SENT_SMS_ACTION + "_" 
-										+ participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
-						
 						if(participantCursor.getString(PARTICIPANT_COLUMN_STATUS).equals(MessageStatus.FOR_SEND.toString())){
+							
+							registerEventHowlerReceiver(deliveredSMSActionReceiver, DELIVERED_SMS_ACTION);
+							registerEventHowlerReceiver(sentSMSActionReceiver, SENT_SMS_ACTION);
 							
 							sendSMS(participantCursor.getString(PARTICIPANT_COLUMN_PNUMBER),
 									participantCursor.getString(PARTICIPANT_COLUMN_MESSAGE), 
@@ -116,39 +107,47 @@ public class EventHowlerSenderService extends Service{
 							participantCursor.moveToNext();
 						}
 						else if(application.hasOngoingEvent() && participantCursor.isLast()){
-							participantCursor.close();
-							participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
-							participantCursor.moveToFirst();
+							refreshParticipantCursor();
 						}
 						else{
-							closeDatabase();
 							break;
 						}
 					}
 				}
+				stopSelf();
 			}
 
-
+			private void threadSleep() {
+				try {
+					Thread.sleep(2000);
+				}
+				catch (Exception e) {Log.d("startSeekingForDataToBeSent", "UNABLE TO SLEEP");}
+			}
 		};
 		new Thread(forSendSeeker).start();
 	}
 
-	private void closeDatabase() {
-		participantCursor.close();
-		openHelper.resetDatabase();
-		unregisterReceiver(deliveredSMSActionReceiver);
-		unregisterReceiver(sentSMSActionReceiver);
-		application.setRunning(false);
-		stopSelf();
+	private void registerEventHowlerReceiver(BroadcastReceiver receiver, String intent){
+		registerReceiver(receiver, 
+				new IntentFilter(intent + "_" 
+						+ participantCursor.getString(PARTICIPANT_COLUMN_TRANSACTION_ID)));
 	}
 	
-	private void threadSleep() {
-		try {
-			Thread.sleep(2000);
+	private void refreshParticipantCursor() {
+		participantCursor.close();
+		participantCursor = openHelper.getAllParticipantsWithUnsentMessages();
+		if(participantCursor.getCount()>0){
+			participantCursor.moveToFirst();
 		}
-		catch (Exception e) {Log.d("startSeekingForDataToBeSent", "UNABLE TO SLEEP");}
-	}
-		
+	}		
+	
+	/**
+	 * Sends SMS to a phone number
+	 * 
+	 * @param phoneNumber		participant phone number
+	 * @param message			message to send
+	 * @param transactionId		message transaction id
+	 */
 	private void sendSMS(String phoneNumber, String message, String transactionId) {
 		
 		Log.d("sendSMS", phoneNumber);
@@ -164,8 +163,18 @@ public class EventHowlerSenderService extends Service{
 	public void onDestroy() {
 		Toast.makeText(this, "event Howler sending service destroyed",
 				Toast.LENGTH_SHORT).show();
-		openHelper.close();
+		application.setSenderServiceFinished(true);
+		application.resetDatabaseIfAllServicesAreFinished();
+		finalizeCursorAndReceiver();
 		super.onDestroy();
+	}
+	
+	private void finalizeCursorAndReceiver() {
+		participantCursor.close();
+		unregisterReceiver(deliveredSMSActionReceiver);
+		unregisterReceiver(sentSMSActionReceiver);
+		application.setRunningLastCycle(false);
+		openHelper.close();
 	}
 	
 }

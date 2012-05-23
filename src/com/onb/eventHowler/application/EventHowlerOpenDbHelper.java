@@ -76,17 +76,34 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 									+ PARTICIPANT_COLUMN_STATUS 
 									+ " = '" + MessageStatus.FOR_SEND.toString() + "'", null);
 	} 
-	
-	public Cursor getAllReplyStatus() {
-		Log.d("openHelper", "getAllReplyStatus");
-		return getReadableDatabase().rawQuery("SELECT * FROM "
-									+ TABLE_PARTICIPANTS + " WHERE "
-									+ PARTICIPANT_COLUMN_MESSAGE + " AND "
-									+ PARTICIPANT_COLUMN_STATUS
-									+ " LIKE 'FOR_SEND_%'", null);
+		
+	/**
+	 * 
+	 * @return 	Cursor representing all participants who have sending attempts that were UNSENT, UNSUCCESSFUL_DELIVERY, or SUCCESSFUL_DELIVERY
+	 */
+	public Cursor getAllParticipantsWithMessageSendingAttempts(){
+		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
+		return getReadableDatabase().rawQuery("SELECT * FROM " 
+				+ TABLE_PARTICIPANTS + " WHERE " 
+				+ PARTICIPANT_COLUMN_STATUS 
+				+ " LIKE 'UNSENT' OR "
+				+ PARTICIPANT_COLUMN_STATUS 
+				+ " LIKE '%DELIVERY'", null);
 	}
 	
+	/**
+	 * 
+	 * @return Cursor representing all the participants the already reply
+	 */
 	
+	public Cursor getAllParticipantsWithReplies(){
+		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
+		return getReadableDatabase().rawQuery("SELECT * FROM " 
+				+ TABLE_PARTICIPANTS + " WHERE " 
+				+ PARTICIPANT_COLUMN_STATUS 
+				+ " LIKE 'REPLY_RECEIVED'", null);
+	}
+
 	/**
 	 * insert a participant in participant table
 	 * 
@@ -175,28 +192,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 		return phoneNumber;
 	}
 
-	public Cursor getAllParticipantsWithMessageSendingAttempts(){
-		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
-		return getReadableDatabase().rawQuery("SELECT * FROM " 
-									+ TABLE_PARTICIPANTS + " WHERE " 
-									+ PARTICIPANT_COLUMN_STATUS 
-									+ " LIKE '%SENT' OR "
-									+ PARTICIPANT_COLUMN_STATUS 
-									+ " LIKE '%DELIVERY'", null);
-	}
-	
-	/**
-	 * 
-	 * @return Cursor representing all the participants the already reply
-	 */
-	
-	public Cursor getAllParticipantsWithReplies(){
-		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
-		return getReadableDatabase().rawQuery("SELECT * FROM " 
-									+ TABLE_PARTICIPANTS + " WHERE " 
-									+ PARTICIPANT_COLUMN_STATUS 
-									+ " LIKE 'REPLY_RECEIVED'", null);
-	}
 	
 	/**
 	 *  gets the participant from the participant table

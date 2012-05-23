@@ -24,8 +24,6 @@ public class EventHowlerWebQueryService extends Service{
 
 	private static EventHowlerOpenDbHelper openHelper;
 	private static final String QUERY_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?id=%s&secretKey=%s";
-	private static final String WEB_DOMAIN = "10.10.6.83";
-	private static final String PORT_NO = "8080";
 	private static final long QUERY_INTERVAL = 10000;
 	private EventHowlerApplication application;
 			
@@ -62,7 +60,7 @@ public class EventHowlerWebQueryService extends Service{
 	 * @param id			event id
 	 * @param secretKey		corresponding secret key
 	 */
-	public void startQuerying(final String id, final String secretKey)
+	private void startQuerying(final String id, final String secretKey)
 	{		
 		Thread queryThread = new Thread( new Runnable() {
 			public void run(){				
@@ -100,7 +98,7 @@ public class EventHowlerWebQueryService extends Service{
 	 * @param id			unique event id
 	 * @param secretKey		corresponding event key
 	 */
-	public void retrieveAndStoreEventInfoFromIdAndKey(String id, String secretKey) {
+	private void retrieveAndStoreEventInfoFromIdAndKey(String id, String secretKey) {
 		String query = generateQueryURL(id, secretKey);
 		retrieveAndStoreEventInfoFromURL(query);
 	}
@@ -113,8 +111,13 @@ public class EventHowlerWebQueryService extends Service{
 	 * @return				generated query URL
 	 */
 	public String generateQueryURL(String id, String secretKey) {
-		Log.d("generateQueryURL", String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, secretKey));
-		return String.format(QUERY_URL_FORMAT, WEB_DOMAIN, PORT_NO, id, secretKey);
+		Log.d("generateQueryURL", String.format(QUERY_URL_FORMAT, 
+												application.DOMAIN, application.PORT, 
+												id, secretKey));
+		
+		return String.format(QUERY_URL_FORMAT, 
+								application.DOMAIN, application.PORT, 
+								id, secretKey);
 	}
 
 	/**
@@ -124,7 +127,7 @@ public class EventHowlerWebQueryService extends Service{
 	 * 
 	 * @param url location of web page to retrieve and store data from
 	 */
-	public void retrieveAndStoreEventInfoFromURL(String url) {
+	private void retrieveAndStoreEventInfoFromURL(String url) {
 		List<JSONObject> list;
 		EventHowlerApplication app = (EventHowlerApplication)getApplication();
 		try {
@@ -163,7 +166,7 @@ public class EventHowlerWebQueryService extends Service{
 	 * @param entry				JSONObject representing a single query result
 	 * @throws JSONException
 	 */
-	public void extractParticipants(JSONObject entry) {
+	private void extractParticipants(JSONObject entry) {
 		try{
 			JSONArray participants = entry.getJSONArray(EventHowlerJSONHelper.ATTRIBUTE_CONTENT);
 			
@@ -191,7 +194,7 @@ public class EventHowlerWebQueryService extends Service{
 	 * @param jObject		JSONObject to be stored as an EventHowlerParticipant
 	 * @throws JSONException
 	 */
-	public void storeAsParticipant(JSONObject jObject, String message) throws JSONException {
+	private void storeAsParticipant(JSONObject jObject, String message) throws JSONException {
 		EventHowlerParticipant participant = EventHowlerJSONHelper.convertJSONObjectToParticipant(jObject);
 		
 		Log.d("STORING PARTICIPANT", "Phone: " + participant.getPhoneNumber() 

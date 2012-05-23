@@ -16,7 +16,7 @@
             android:id="@+id/howling"
             android:layout_width="142dp"
             android:layout_height="142dp"
-            android:src="@drawable/event_howler_howling"
+            android:src="@drawable/event_howling_animation"
             android:gravity="right"
             android:contentDescription="@string/app_name"
             android:visibility="gone"/>

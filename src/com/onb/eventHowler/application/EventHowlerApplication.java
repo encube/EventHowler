@@ -9,11 +9,18 @@ import android.util.Log;
 
 public class EventHowlerApplication extends Application{
 	
+	private EventHowlerOpenDbHelper openHelper; 
 	private static boolean withOngoingEvent;
 	private boolean runningLastCycle;
 	private boolean sendingServiceRunning;
 	
 	private ServiceStatus eventHowlerWebQueryServiceStatus;
+	
+	private boolean eventHowlerWebReplyServiceFinished = true;
+	private boolean eventHowlerWebUpdateServiceFinished = true;
+	private boolean eventHowlerSenderServiceFinished = true;
+	public final String DOMAIN = "10.10.6.126";
+	public final String PORT = "8080";
 
 	private final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private EventHowlerBroadcastReceiver eventHowlerBroadcastReceiver = new EventHowlerBroadcastReceiver();
@@ -24,7 +31,21 @@ public class EventHowlerApplication extends Application{
 
 	@Override
 	public void onCreate() {
+		openHelper = new EventHowlerOpenDbHelper(this);
 		super.onCreate();
+	}
+	
+	public void resetDatabaseIfAllServicesAreFinished(){
+		if(allServicesFinished()){
+			openHelper.resetDatabase();
+		}
+	}
+	
+	public boolean allServicesFinished(){
+		Log.d("allservice finished", "update: " + eventHowlerWebUpdateServiceFinished + " Reply: " + eventHowlerWebReplyServiceFinished + " Sender: " + eventHowlerSenderServiceFinished);
+		return eventHowlerWebUpdateServiceFinished &&
+				eventHowlerWebReplyServiceFinished &&
+				eventHowlerSenderServiceFinished; 
 	}
 	
 	/**
@@ -89,11 +110,11 @@ public class EventHowlerApplication extends Application{
 
 	/**
 	 * 
-	 * @param finishing		state to be set to runningLstCyle.
+	 * @param b		state to be set to runningLstCyle.
 	 */
 	
-	public void setRunning(boolean finishing) {
-		this.runningLastCycle = finishing;
+	public void setRunningLastCycle(boolean b) {
+		this.runningLastCycle = b;
 	}
 
 	/**
@@ -137,7 +158,7 @@ public class EventHowlerApplication extends Application{
 	 * @return		status of {@link EventHowlerWebQueryService}
 	 */
 	
-	public ServiceStatus getEventHowlerURLRetrieverServiceStatus() {
+	public ServiceStatus getEventHowlerWebQueryServiceStatus() {
 		return eventHowlerWebQueryServiceStatus;
 	}
 
@@ -150,5 +171,19 @@ public class EventHowlerApplication extends Application{
 	public void setEventHowlerURLRetrieverServiceStatus(
 			ServiceStatus eventHowlerURLRetrieverService) {
 		this.eventHowlerWebQueryServiceStatus = eventHowlerURLRetrieverService;
+	}
+
+	public void setSenderServiceFinished(boolean b) {
+		eventHowlerSenderServiceFinished = b;
+	}
+
+	public void setWebReplyServiceFinished(boolean b) {
+		eventHowlerWebReplyServiceFinished = b;
+		
+	}
+
+	public void setWebUpdateServiceFinished(boolean b) {
+		eventHowlerWebUpdateServiceFinished = b;
+		
 	}
 }

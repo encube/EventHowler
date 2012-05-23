@@ -4,7 +4,6 @@ import com.onb.eventHowler.application.EventHowlerApplication;
 import com.onb.eventHowler.application.EventHowlerOpenDbHelper;
 import com.onb.eventHowler.application.EventHowlerURLHelper;
 import com.onb.eventHowler.application.MessageStatus;
-import com.onb.eventHowler.application.ServiceStatus;
 import com.onb.eventHowler.domain.EventHowlerParticipant;
 
 import android.app.Service;
@@ -18,12 +17,11 @@ public class EventHowlerWebUpdateService extends Service {
 
 	private static EventHowlerOpenDbHelper openHelper;
 	private static final String UPDATE_URL_FORMAT = "http://%s:%s/EventHowlerApp/query?transId=%s&status=%s&id=%s&secretKey=%s";
-	private static final String WEB_DOMAIN = "10.10.6.83";
-	private static final String PORT_NO = "8080";
 	private static final String SUCCESS = "SUCCESS";
 	private static final String FAILED = "FAILED";
 	private static final long UPDATE_INTERVAL = 10000;
 	private EventHowlerApplication application;
+	private boolean done;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -38,6 +36,7 @@ public class EventHowlerWebUpdateService extends Service {
 		
 		openHelper = new EventHowlerOpenDbHelper(getApplicationContext());
 		application = (EventHowlerApplication)(getApplication());
+		application.setWebUpdateServiceFinished(false);
 		
 		startUpdating();
 		
@@ -47,13 +46,14 @@ public class EventHowlerWebUpdateService extends Service {
 	/**
 	 * Start updating participant status to web application.
 	 */
-	public void startUpdating()
+	private void startUpdating()
 	{		
+		done = false;
 		Thread queryThread = new Thread( new Runnable() {
 			public void run(){						
-				while(application.hasOngoingEvent()){
+				while(!done){
 					
-					if(!participantIsEmpty() && application.getEventHowlerURLRetrieverServiceStatus().equals(ServiceStatus.RUNNING)) {
+					if(!openHelper.isParticipantEmpty()) {
 						updateWebApp();
 					}
 					
@@ -61,14 +61,6 @@ public class EventHowlerWebUpdateService extends Service {
 				}
 				stopSelf();
 			}
-
-			//TODO transfer to openDBHelper
-			private boolean participantIsEmpty() {
-				Cursor participants = openHelper.getAllParticipants();
-				boolean result = (participants.getCount() == 0);
-				participants.close();
-				return result;
-			}			
 
 			private void threadSleep(long msec) {
 				try {
@@ -81,19 +73,16 @@ public class EventHowlerWebUpdateService extends Service {
 		queryThread.start();
 	}
 	
-	
-	
-	
 	/**
 	 * Update participants' message sending status in Web application
 	 */
-	public void updateWebApp(){
+	private void updateWebApp(){
 		
 		Cursor participants = openHelper.getAllParticipantsWithMessageSendingAttempts();
-		participants.moveToFirst();
-		do {
-			
-			if(participants.getCount() == 0) {
+		boolean cursorEmpty = !participants.moveToFirst(); // moveToFirst() returns false of empty
+		do {			
+			if(cursorEmpty) {
+				Log.d("UPDATE EMPTY", "cursor with all sending attmpts of participants is empty");
 				break;
 			}
 			
@@ -111,6 +100,13 @@ public class EventHowlerWebUpdateService extends Service {
 			}
 		
 		} while (participants.moveToNext());
+		if(participants.getCount() == 0 && !application.hasOngoingEvent()){
+			Log.d("hasOngoing", "false");
+			done = true;
+		}
+		Log.d("update service done ", "update: " + done 
+				+ "; count: " + participants.getCount() 
+				+ "; has no more ongoing event: " + !application.hasOngoingEvent());
 		participants.close();
 	}
 	
@@ -119,7 +115,7 @@ public class EventHowlerWebUpdateService extends Service {
 	 * @param participant	participant to be updated
 	 * @param status		current message sending status, either SUCCESS or FAILED
 	 */
-	public void updateParticipantStatus(EventHowlerParticipant participant, String status){
+	private void updateParticipantStatus(EventHowlerParticipant participant, String status){
 		EventHowlerURLHelper.goToURL(generateUpdateURL(participant.getTransactionId(), status));
 		participant.setStatus(MessageStatus.STATUS_REPORTED.toString());
 		openHelper.updateStatus(participant, "");
@@ -133,14 +129,23 @@ public class EventHowlerWebUpdateService extends Service {
 	 * @return			generated query URL
 	 */
 	public String generateUpdateURL(String transId, String status) {
-		Log.d("generateUpdateURL", String.format(UPDATE_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status,application.getEventId(), application.getSecretKey()));
-		return String.format(UPDATE_URL_FORMAT, WEB_DOMAIN, PORT_NO, transId, status, application.getEventId(), application.getSecretKey());
+		Log.d("generateUpdateURL", String.format(UPDATE_URL_FORMAT, 
+				application.DOMAIN, application.PORT, 
+				transId, status,
+				application.getEventId(), application.getSecretKey()));
+		
+		return String.format(UPDATE_URL_FORMAT, 
+								application.DOMAIN, application.PORT, 
+								transId, status, 
+								application.getEventId(), application.getSecretKey());
 	}
 	
 	@Override
 	public void onDestroy() {
 		Toast.makeText(this, "event Howler query service destroyed",
 				Toast.LENGTH_SHORT).show();
+		application.setWebUpdateServiceFinished(true);
+		application.resetDatabaseIfAllServicesAreFinished();
 		openHelper.close();
 		super.onDestroy();
 	}

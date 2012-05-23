@@ -45,6 +45,12 @@ public class EventHowlerActivity extends Activity {
         
     }
     
+    /**
+     * Executed if toggle button is clicked
+     * Toggles the application between 'idle' and 'howling' (active) states
+     * @param view
+     */
+    
     public void onSwitchToggled(View view){
 		
 		BroadcastReceiver forceStopActionReceiver = new BroadcastReceiver() {

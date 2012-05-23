@@ -57,7 +57,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * 
 	 * @return 	Cursor representing the current state of the participant table
 	 */
-	
 	public Cursor getAllParticipants() {
 		Log.d("getAllParticipants", "getAllParticipants");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
@@ -68,7 +67,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * 
 	 * @return		Cursor representing all the participant with FOR_SEND status
 	 */
-	
 	public Cursor getAllParticipantsWithUnsentMessages(){
 		Log.d("getAllParticipantsWithUnsentMessages", "getAllParticipantsWithUnsentMessages");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
@@ -95,7 +93,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * 
 	 * @return Cursor representing all the participants the already reply
 	 */
-	
 	public Cursor getAllParticipantsWithReplies(){
 		Log.d("getAllParticipantsWithReplies", "getAllParticipantsWithReplies");
 		return getReadableDatabase().rawQuery("SELECT * FROM " 
@@ -110,7 +107,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * @param participant		the participant
 	 * @param message			message to/from participant
 	 */
-	
 	public void insertParticipant(EventHowlerParticipant participant, String message){
 		Log.d("insertParticipant", "inserting participant");
 		ContentValues contentValues = new ContentValues();
@@ -130,7 +126,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * @param participant		the participant
 	 * @param message			message to/from participant
 	 */
-	
 	public void updateStatus(EventHowlerParticipant participant, String message){
 		Log.d("updateStatus", "updating status");
 		ContentValues contentValues = new ContentValues();
@@ -150,7 +145,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * @param phoneNumber		number of the participant
 	 * @return					true is phoneNumber exist
 	 */
-	
 	public boolean checkNumberIfExist(String phoneNumber) {
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
 				+ TABLE_PARTICIPANTS + " WHERE " 
@@ -173,7 +167,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * @param transactionId			the transaction ID of the participant
 	 * @return						the phoneNumber of the participant
 	 */
-	
 	public String findNumberWithTransactionId(String transactionId) {
 		String phoneNumber;
 		Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " 
@@ -198,7 +191,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * @param participants			a participant row
 	 * @return						a {@link EventHowlerParticipant}
 	 */
-	
 	public static EventHowlerParticipant getParticipantFromCursor(Cursor participants) {
 		String phoneNumber = participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_PNUMBER));
 		String transactionId = participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_TRANSACTION_ID));
@@ -213,7 +205,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	 * @param participants			a row in the participant table
 	 * @return						message to/from the participant
 	 */
-	
 	public static String getMessageFromCursor(Cursor participants) {
 		return participants.getString(participants.getColumnIndex(PARTICIPANT_COLUMN_MESSAGE));
 	}
@@ -221,7 +212,6 @@ public class EventHowlerOpenDbHelper extends SQLiteOpenHelper{
 	/**
 	 * resets the database. deleting all rows in participant table.
 	 */
-	
 	public void resetDatabase() {
 		Log.d("resetDatabase", "resetting database");
 		getWritableDatabase().delete(TABLE_PARTICIPANTS, "1", null);

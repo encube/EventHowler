@@ -42,7 +42,11 @@ public class EventHowlerApplication extends Application{
 	}
 	
 	public boolean allServicesFinished(){
-		Log.d("allservice finished", "update: " + eventHowlerWebUpdateServiceFinished + " Reply: " + eventHowlerWebReplyServiceFinished + " Sender: " + eventHowlerSenderServiceFinished);
+		Log.d("allservice finished",
+				"update: " + eventHowlerWebUpdateServiceFinished +
+				" Reply: " + eventHowlerWebReplyServiceFinished +
+				" Sender: " + eventHowlerSenderServiceFinished);
+		
 		return eventHowlerWebUpdateServiceFinished &&
 				eventHowlerWebReplyServiceFinished &&
 				eventHowlerSenderServiceFinished; 
@@ -51,7 +55,6 @@ public class EventHowlerApplication extends Application{
 	/**
 	 * starts the {@link EventHowlerWebQueryService}
 	 */
-	
 	public void startRetrievingToURL(){
 		sendingServiceRunning = false;
 		withOngoingEvent = true;
@@ -62,7 +65,6 @@ public class EventHowlerApplication extends Application{
 	 * starts the {@link EventHowlerSenderService}, {@link EventHowlerWebUpdateService} and {@link EventHowlerWebReplyService} in NOT_STICKY mode.
 	 * also register {@link EventHowlerBroadcastReceiver} to start filtering incoming messages.
 	 */
-	
 	public void startEvent(){
 		sendingServiceRunning = true;
 		Log.d("startEvent", "starting event");
@@ -76,7 +78,6 @@ public class EventHowlerApplication extends Application{
 	 * sets withOngoingEvent to false to stop services and runningLastCycle to true for 
 	 * {@link EventHowlerSenderService} to run last cycle to avoid skipping message to be sent. 
 	 */
-	
 	public void stopEvent(){
 		setEventHowlerURLRetrieverServiceStatus(ServiceStatus.STOP);
 		Log.d("stopEvent", "stopping event");
@@ -94,7 +95,6 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @return the state of hasOnGoingEvent field
 	 */
-	
 	public boolean hasOngoingEvent(){
 		return withOngoingEvent;
 	}
@@ -103,25 +103,22 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @return the state of runningLastCycle field
 	 */
-	
 	public boolean isRunningLastCycle() {
 		return runningLastCycle;
 	}
 
 	/**
 	 * 
-	 * @param b		state to be set to runningLstCyle.
+	 * @param isLastCycle		state to be set to runningLstCyle.
 	 */
-	
-	public void setRunningLastCycle(boolean b) {
-		this.runningLastCycle = b;
+	public void setRunningLastCycle(boolean isLastCycle) {
+		this.runningLastCycle = isLastCycle;
 	}
 
 	/**
 	 * 
 	 * @return		event id of the current event
 	 */
-	
 	public String getEventId() {
 		return eventId;
 	}
@@ -130,7 +127,6 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @param eventId		event id to be set
 	 */
-	
 	public void setEventId(String eventId) {
 		this.eventId = eventId;
 	}
@@ -139,7 +135,6 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @return		secret key of the current event
 	 */
-	
 	public String getSecretKey() {
 		return secretKey;
 	}
@@ -148,7 +143,6 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @param secretKey		secret key to be set
 	 */
-	
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
 	}
@@ -157,7 +151,6 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @return		status of {@link EventHowlerWebQueryService}
 	 */
-	
 	public ServiceStatus getEventHowlerWebQueryServiceStatus() {
 		return eventHowlerWebQueryServiceStatus;
 	}
@@ -167,23 +160,22 @@ public class EventHowlerApplication extends Application{
 	 * 
 	 * @param eventHowlerURLRetrieverService		Status to be set
 	 */
-	
 	public void setEventHowlerURLRetrieverServiceStatus(
 			ServiceStatus eventHowlerURLRetrieverService) {
 		this.eventHowlerWebQueryServiceStatus = eventHowlerURLRetrieverService;
 	}
 
-	public void setSenderServiceFinished(boolean b) {
-		eventHowlerSenderServiceFinished = b;
+	public void setSenderServiceFinished(boolean isFinished) {
+		eventHowlerSenderServiceFinished = isFinished;
 	}
 
-	public void setWebReplyServiceFinished(boolean b) {
-		eventHowlerWebReplyServiceFinished = b;
+	public void setWebReplyServiceFinished(boolean isFinished) {
+		eventHowlerWebReplyServiceFinished = isFinished;
 		
 	}
 
-	public void setWebUpdateServiceFinished(boolean b) {
-		eventHowlerWebUpdateServiceFinished = b;
+	public void setWebUpdateServiceFinished(boolean isFinished) {
+		eventHowlerWebUpdateServiceFinished = isFinished;
 		
 	}
 }
